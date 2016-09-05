@@ -1,10 +1,5 @@
 //Google API Key BEGINNING
-var config = {
-  apiKey: "AIzaSyCEEGy7Gh8x4iZZjILg66WA7nTXj34Gs5s",
-  authDomain: "wonjunhong-test.firebaseapp.com",
-  databaseURL: "https://wonjunhong-test.firebaseio.com",
-  storageBucket: ""
-};
+
 //Google API Key ENDING
 var projectsInFirebase;
 var chatsInFirebase;
