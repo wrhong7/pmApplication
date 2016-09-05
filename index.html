@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+
+		<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+		<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+		<script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+	    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+	    <link rel='stylesheet' type='text/css' href='/resources/tutorial/css/example.css'>
+		<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Raleway">
+		<link rel="stylesheet" href="style.css">
+		<link rel="stylesheet" href="skeleton.css">
+
+		<title>Get more done with less meetings</title>
+
+	</head>
+
+	<body>
+		<div class="welcome-login-wrapper">
+
+			<div class="welcome-login">
+				<div class="front-page-product-description">
+					<b class="front-page-intro-revolver">
+					  <span1>
+					  	All Office Tool<br/> 
+					    Emailing<br/> 
+					    Project managing<br/>
+					    Open Q&Aing<br/>
+					    Status tracking<br/>
+					    Instant messaging<br/>
+					    Task allocating<br/>
+					    </span1>
+					</b>
+					<p class="font-page-intro-description">on one page</p>
+				</div>
+				<button onclick="login()">Login with Google</button>
+			</div>
+
+			<div class="multistep-container" style="width: 75%; margin: 10px auto;">					        
+			   <div class="multistep">
+			        <div class="multistep-step complete">
+			            <div class="text-center multistep-stepname">Create Project</div>
+			            <div class="progress"><div class="progress-bar"></div></div>
+			            <a href="#" class="multistep-dot"></a>
+			        </div>
+			        <div class="multistep-step complete">
+			            <div class="text-center multistep-stepname">Allocate Work</div>
+			            <div class="progress"><div class="progress-bar"></div></div>
+			            <a href="#" class="multistep-dot"></a>
+			        </div>
+			        <div class="multistep-step complete">
+			            <div class="text-center multistep-stepname">Chat and Q&A</div>
+			            <div class="progress"><div class="progress-bar"></div></div>
+			            <a href="#" class="multistep-dot"></a>
+			        </div>
+			        <div class="multistep-step complete">
+			            <div class="text-center multistep-stepname">Real Time Tracking</div>
+			            <div class="progress"><div class="progress-bar"></div></div>
+			            <a href="#" class="multistep-dot"></a>
+			        </div>
+			    </div>	    
+			</div>
+
+			<div class="welcome-login-footer">
+				<p><a href="https://www.linkedin.com/in/wjhong">who made this?</a>  |  <a href="mailto:won.hong@stern.nyu.edu?Subject=Great Job on the Website :)">contact developer</a></p>
+			</div>
+
+		</div>
+
+		<div class="front-page-cover">
+			<div class="mail-box">
+            	<aside class="sm-side">
+
+					<div class="front-page-user-profile-info">
+						<div class="front-page-user-profile-info-content">
+							<div class="front-page-user-profile-info-left">
+							</div>
+							<div class="front-page-user-profile-info-right">
+							</div>
+						</div>
+					</div>
+
+					<div class="inbox-body">
+	              	</div>
+
+					<ul class="inbox-nav inbox-divider">
+						<li>
+							<button id="addProjectButton" class="button-primary" onclick="addProject()">New Project</button>
+						</li>
+						<li>
+						  <a href="#"><i class="fa fa-inbox"></i> Current Projects <span class="label label-danger pull-right">2</span></a>
+
+						</li>
+						<li>
+						  <a href="#"><i class="fa fa-envelope-o"></i> Comments <span class="label label-info pull-right">34</span></a>
+						</li>
+						<li>
+						  <a href="#"><i class=" fa fa-external-link"></i> Assignments <span class="label label-info pull-right">30</span></a>
+						</li>
+						<li>
+						  <a href="#"><i class=" fa fa-trash-o"></i> Todos <span class="label label-info pull-right">8</span></a>
+						</li>
+						<li>
+						  <a href="#"><i class=" fa fa-trash-o"></i> Calander <span class="label label-info pull-right">8</span></a>
+						</li>
+						<li>
+						  <a href="#"><i class=" fa fa-trash-o"></i> Cloud Storage <span class="label label-info pull-right">8</span></a>
+						</li>
+					</ul>
+
+
+					<div class="chat-sidebar">
+						<div class="chat-sidebar-corner">
+						<div>
+		    		</div>
+
+					<div class="inbox-body text-center">
+						<div class="btn-group">
+						  <a class="btn mini btn-primary" href="javascript:;">
+						      <i class="fa fa-plus"></i>
+						  </a>
+						</div>
+						<div class="btn-group">
+						  <a class="btn mini btn-success" href="javascript:;">
+						      <i class="fa fa-phone"></i>
+						  </a>
+						</div>
+						<div class="btn-group">
+						  <a class="btn mini btn-info" href="javascript:;">
+						      <i class="fa fa-cog"></i>
+						  </a>
+						</div>
+					</div>
+
+				</aside>
+
+				<aside class="lg-side">
+					<div class="inbox-head"></div>
+					<div class="inbox-body">
+						<div class="front-page-left">
+							<h6 class="front-page-projects-title">Projects in Progress</h6>
+						    <div class="project-cover"></div>
+						    <div class="chat-window"></div>
+						    <div class="front-page-left-project-preview"></div>
+						</div>
+						<div class="front-page-right">
+						    <button id="hideProjectDetailButton" onclick="hideProjectDetail()">Hide Details</button>
+						    <div class="projectList"></div>          
+						</div>
+						<div class="front-page-detail">
+						</div>
+						<div class="addProjectFields">
+						</div>
+					</div>
+				</aside>
+	    	</div>
+		</div>
+
+		<script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+		<script src="app.js"></script>
+        
+    </body>
+
+</html>
