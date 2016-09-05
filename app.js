@@ -1,5 +1,10 @@
 //Google API Key BEGINNING
-
+var config = {
+  apiKey: "AIzaSyCEEGy7Gh8x4iZZjILg66WA7nTXj34Gs5s",
+  authDomain: "wonjunhong-test.firebaseapp.com",
+  databaseURL: "https://wonjunhong-test.firebaseio.com",
+  storageBucket: ""
+};
 //Google API Key ENDING
 var projectsInFirebase;
 var chatsInFirebase;
@@ -49,6 +54,7 @@ var addTargetButton;
 var globalStageNumber;
 var globalGoalNumberArray = [];
 var projectAllocationArray = [];
+chatSidebarAlreadyLoaded = [];
 var globalStageNumberPrev;
 var projectBrowserLoaded = 
 	{"-KNNBaEJu_mZrnOso3FQ": 
@@ -260,12 +266,12 @@ function addTarget(stageNumber) {
 	localGoalNumber = globalGoalNumberArray[stageNumber];
 	localGoalNumberDictKey = "goal"+localGoalNumber;
 
-	projectAllocationArray[stageNumber].push(
-		{
-			goalKey: localGoalNumberDictKey,
-			goalTopic: "get to the moon by tomorrow"
-		}
-	);
+	// projectAllocationArray[stageNumber].push(
+	// 	{
+	// 		goalKey: localGoalNumberDictKey,
+	// 		goalTopic: "get to the moon by tomorrow"
+	// 	}
+	// );
 
 	var stageNumberToUniqueQuery = "addTargetInputFields-"+stageNumber;
 	var addTargetDestination = $(`#${stageNumberToUniqueQuery}`);
@@ -307,6 +313,16 @@ function submitProject() {
 
 	var assignmentToDB = [];
 
+	var commentsToDB = [
+		{
+			comment1: "what the hell are we talking about?", 
+			comment2: "as a response, you should not ask me a question like that" 
+		}, 
+		{
+			comment2: "in response to comment 2--you must be out of your mind"
+		}
+	];
+
 	list.forEach(function(stageNumber) {
 		var singleStageGoesToAssignmentToDBAbove = {};
 		stageNumberjQuery = '#'+'addStageInputFields-substage-input-'+stageNumber;
@@ -321,6 +337,7 @@ function submitProject() {
 		}
 
 		singleStageGoesToAssignmentToDBAbove["stageMission"] = stageTopic;
+		singleStageGoesToAssignmentToDBAbove["comments"] = commentsToDB;
 
 		goalList.forEach(function(goalNumber) {
 			stageNumberjQuery = `#substageGoalFirstInput-value-${stageNumber}-${goalNumber}`;
@@ -336,9 +353,17 @@ function submitProject() {
 			var projectStaffListIteratorEmailList = [];
 
 			projectStaffListIterator.forEach(function(email) {
-				if ( goaljQueryContent[email].checked ) {
-					projectStaffListIteratorEmailList.push(goaljQueryContent[email].value)
-				}	
+
+				if (typeof goaljQueryContent[email] !== "undefined") {
+
+					if ( goaljQueryContent[email].checked ) {
+
+						projectStaffListIteratorEmailList.push(goaljQueryContent[email].value);
+
+					}
+
+				}
+
 			})
 			
 			var dictKeyName2 = "stageGoal" + goalNumber + "allocationList";
@@ -373,23 +398,29 @@ function submitProject() {
 function addChatTargetList() {
 	chatTargetList = chatTargetList.filter(l => l!= "");
 	chatTargetListUnique = [];
+
 	$.each(chatTargetList, function(i, el){
-	    if($.inArray(el, chatTargetListUnique) === -1) chatTargetListUnique.push(el);
+	    if ($.inArray(el, chatTargetListUnique) === -1) chatTargetListUnique.push(el);
 	});
+
 	chatTargetListUnique.forEach(function(chatTarget) {
 		userKeys.forEach(function(userKey) {
-			if (userList[userKey].userEmail === chatTarget && userList[userKey].userEmail !== currentUserEmail) {
-				chatSidebar.append(
-					`
-		           	<div class="sidebar-name">
-		                <a href="javascript:register_popup('${userList[userKey].userEmail}', '${userList[userKey].userName}');">
-		                    <img width="30" height="30" src=${userList[userKey].userPhoto} />
-		                    <span>${userList[userKey].userName}</span>
-		                </a>
-		            </div>
-				    `
-				);
-			};
+			if (userList[userKey].userEmail === chatTarget &&
+				userList[userKey].userEmail !== currentUserEmail &&
+				$.inArray(userList[userKey].userEmail, chatSidebarAlreadyLoaded) === -1) 
+				{	
+					chatSidebar.append(
+						`
+			           	<div class="sidebar-name">
+			                <a href="javascript:register_popup('${userList[userKey].userEmail}', '${userList[userKey].userName}');">
+			                    <img width="30" height="30" src=${userList[userKey].userPhoto} />
+			                    <span>${userList[userKey].userName}</span>
+			                </a>
+			            </div>
+					    `
+					);		
+					chatSidebarAlreadyLoaded.push(userList[userKey].userEmail);	
+				}
 			chatTargetBrowserDB[userList[userKey].userEmail] = [userList[userKey].userName, userList[userKey].userPhoto];
 		});
 	});
@@ -689,6 +720,17 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 				projectPermissionNumber = projectList[projectKey].permission.length+1;
 			};
 
+			var numberOfAssignments = projectList[projectKey].assignment.length;
+			var numberOfComments = 0;
+
+			var iteratorRunPrep = projectList[projectKey].assignment;
+
+			iteratorRunPrep.forEach(function(eachAssignment) {
+				if (typeof eachAssignment.comments !== "undefined") {
+					numberOfComments = numberOfComments + eachAssignment.comments.length;
+				};
+			});
+
 			projectPreview = $(
 				`
 				<ul class="project-preview">
@@ -707,10 +749,9 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 			        </div>
 			        <div class="status-dashboard">
 			        	Progress: ${projectList[projectKey].status} <b>|</b>
-			        	Questions: 2 <b>|</b>
-			        	Assignments: 4 <b>|</b>
+			        	Assignments: ${numberOfAssignments} <b>|</b>
 			        	Action Items: 2 <b>|</b>
-			        	Comments: 34			        	
+			        	Comments: ${numberOfComments}			        	
 			        </div>
 			        <div class="project-preview-descriptions">
 			        	${projectList[projectKey].description}
