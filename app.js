@@ -29,6 +29,7 @@ var chatSidebar = $(".chat-sidebar");
 var userProfilePreviewPhoto = $(".front-page-user-profile-info-left");
 var userProfilePreview = $(".front-page-user-profile-info-right");
 var addStageInputFields = $(".add-Stage-Input-Fields");
+var totalNumberOfComments = $(".total-number-of-comments");
 var projectStaffList = [];
 var stages = [];
 var currentUser;
@@ -54,31 +55,20 @@ var addTargetButton;
 var globalStageNumber;
 var globalGoalNumberArray = [];
 var projectAllocationArray = [];
-chatSidebarAlreadyLoaded = [];
+var chatSidebarAlreadyLoaded = [];
 var globalStageNumberPrev;
-var projectBrowserLoaded = 
-	{"-KNNBaEJu_mZrnOso3FQ": 
-		{
-			creatorEmail: "wjh261@stern.nyu.edu",
-			projectTopic: "Doctors Without Borders Mali Project",
-			message: "This needs to be done asap",
-			permission: "w.richard.hong@gmail.com"
-		}
-	};
-var chatBrowserLoaded = 
-	{"-KNNEj8ilJ4h_EzHLUQ-":
-		{
-			senderEmail: "wjh261@stern.nyu.edu",
-			receiverEmail: "w.richard.hong@gmail.com",
-			message: "hello, this is test-1",
-			timestamp: "Jul 23 12:12"
-		}
-	};
+var commentList;
+var commentKeyList;
+
 function hideProjectDetail() {
 	frontPageRight.hide();
+	addProjectDetails.hide();
 	frontPageLeft.css("width", "100%");
+	frontPageLeft.css("display", "inline");
 	addProjectButton.css("display", "inline");
-	projectLists.empty();
+	// projectLists.empty();
+	frontPageDetail.empty();
+	frontPageRight.hide();
 };
 function closeAddProject() {
 	frontPageRight.hide();
@@ -136,10 +126,11 @@ function addProject() {
 	addProjectButton.hide();
 	addProjectDetails.empty();
 	frontPageLeft.hide();
-	frontPageRight.empty();
 	frontPageDetail.empty();
 	frontPageRight.hide();
 	frontPageDetail.hide();
+
+	addProjectDetails.css("display", "inline");
 	addProjectDetails.append(
 		`	
 	 	<form id="project-form">
@@ -225,7 +216,24 @@ function addProject() {
 						<input class="substage-goal" id="substageGoalFirstInput-value-${globalStageNumber}-${globalGoalNumber}" placeholder="i.e. Assistant PM will finish market research" type="text"></input>
 						<button class="allocateGoalButton button-primary" onclick="allocateGoal(${globalStageNumber}, ${globalGoalNumber})">Allocate</button>
 					</div>
-					<div class="substageGoalSecondInput" id="substageGoalSecondInput-${globalStageNumber}-${globalGoalNumber}">
+					<div class="substageGoalSecondInput" id="substageGoalSecondInput-${globalStageNumber}-${globalGoalNumber}"></div>
+					<div class="substageGoalThirdInput" id="substageGoalThirdInput-${globalStageNumber}-${globalGoalNumber}">
+						<div class="substageGoalThirdInputProgressPercentage">
+							<label>Progress Percentage</label>
+							<input type="text" class="substageProgressPercentage" id="substageGoalThirdInput-value-${globalStageNumber}-${globalGoalNumber}" value="0%" ></input>
+						</div>
+						<div class="substageGoalFourthInputDueDate">
+							<label>Due Date</label>
+							<input type="date" class="substageDueDate" id="substageGoalFourthInput-value-${globalStageNumber}-${globalGoalNumber}"></input>
+						</div>
+						<div class="substageGoalFourthInputOverallStatus">	
+							<label>Overall Status</label>
+							<select class="substageOverallStatus" id="substageGoalFifthInput-value-${globalStageNumber}-${globalGoalNumber}">
+								<option value="In Progress">In Progress</option>
+								<option value="Completed">Completed</option>
+								<option value="To be Determined">To be Determined</option>
+							</select>
+						</div>
 					</div>
 				</div>
 				<div class="addTarget-button-group">
@@ -266,14 +274,7 @@ function addTarget(stageNumber) {
 	localGoalNumber = globalGoalNumberArray[stageNumber];
 	localGoalNumberDictKey = "goal"+localGoalNumber;
 
-	// projectAllocationArray[stageNumber].push(
-	// 	{
-	// 		goalKey: localGoalNumberDictKey,
-	// 		goalTopic: "get to the moon by tomorrow"
-	// 	}
-	// );
-
-	var stageNumberToUniqueQuery = "addTargetInputFields-"+stageNumber;
+	var stageNumberToUniqueQuery = `addTargetInputFields-${stageNumber}`
 	var addTargetDestination = $(`#${stageNumberToUniqueQuery}`);
 	addTargetDestination.append(
 		`
@@ -284,6 +285,24 @@ function addTarget(stageNumber) {
 				<button class="allocateGoalButton button-primary" onclick="allocateGoal(${stageNumber}, ${localGoalNumber})">Allocate</button>
 			</div>
 			<div class="substageGoalSecondInput" id="substageGoalSecondInput-${stageNumber}-${localGoalNumber}">
+			</div>
+			<div class="substageGoalThirdInput" id="substageGoalThirdInput-${stageNumber}-${localGoalNumber}">
+				<div class="substageGoalThirdInputProgressPercentage">
+					<label>Progress Percentage</label>
+					<input type="text" class="substageProgressPercentage" id="substageGoalThirdInput-value-${stageNumber}-${localGoalNumber}" value="0%" ></input>
+				</div>
+				<div class="substageGoalFourthInputDueDate">
+					<label>Due Date</label>
+					<input type="date" class="substageDueDate" id="substageGoalFourthInput-value-${stageNumber}-${localGoalNumber}"></input>
+				</div>
+				<div class="substageGoalFourthInputOverallStatus">	
+					<label>Overall Status</label>
+					<select class="substageOverallStatus" id="substageGoalFifthInput-value-${stageNumber}-${localGoalNumber}">
+						<option value="In Progress">In Progress</option>
+						<option value="Completed">Completed</option>
+						<option value="To be Determined">To be Determined</option>
+					</select>
+				</div>
 			</div>
 		</div>
 		`
@@ -313,20 +332,23 @@ function submitProject() {
 
 	var assignmentToDB = [];
 
-	var commentsToDB = [
-		{
-			comment1: "what the hell are we talking about?", 
-			comment2: "as a response, you should not ask me a question like that" 
-		}, 
-		{
-			comment2: "in response to comment 2--you must be out of your mind"
-		}
-	];
+	var commentsToDB = {
+		comment0: ["what the hell are we talking about--1?", "wjh261@stern.nyu.edu"],
+		comment1: ["what the hell are we talking about--2?", "wjh261@stern.nyu.edu"],
+		comment2: ["what the hell are we talking about--3?", "wjh261@stern.nyu.edu"],
+		comment3: ["what the hell are we talking about--4?", "wjh261@stern.nyu.edu"],
+		comment4: ["what the hell are we talking about--5?", "whong@outlook.com"],
+		comment5: ["what the hell are we talking about--6?", "wjh261@stern.nyu.edu"],
+		comment6: ["what the hell are we talking about--7?", "wjh261@stern.nyu.edu"]
+	}
 
 	list.forEach(function(stageNumber) {
 		var singleStageGoesToAssignmentToDBAbove = {};
-		stageNumberjQuery = '#'+'addStageInputFields-substage-input-'+stageNumber;
-		var stageTopic = $(stageNumberjQuery).val();
+		stageNumberTopicjQuery = '#'+'addStageInputFields-substage-input-'+stageNumber;
+		var stageTopic = $(stageNumberTopicjQuery).val();
+		// var stageDescription = ;
+
+
 		singleStageGoesToAssignmentToDBAbove["stageTopic"] = stageTopic;
 
 		var localGoalNumber = globalGoalNumberArray[stageNumber];
@@ -336,42 +358,69 @@ function submitProject() {
 			goalList.push(i);
 		}
 
-		singleStageGoesToAssignmentToDBAbove["stageMission"] = stageTopic;
-		singleStageGoesToAssignmentToDBAbove["comments"] = commentsToDB;
+		singleStageGoesToAssignmentToDBAbove["stageMission"] = projectDescriptionToDB;
 
 		goalList.forEach(function(goalNumber) {
+			//for goalTopic
 			stageNumberjQuery = `#substageGoalFirstInput-value-${stageNumber}-${goalNumber}`;
 			var stageTopic = $(stageNumberjQuery).val();
 			var dictKeyName = "stageGoal" + goalNumber;
 			singleStageGoesToAssignmentToDBAbove[dictKeyName] = stageTopic;
+
+			//for staff allocation
 			goaljQueryContent = $(`.checkbox-element-left-extract-value-${stageNumber}-${goalNumber}`);
 			var projectStaffListIterator = [];
 			for (var i = 0; i < projectStaffList.length; i++) {
 				projectStaffListIterator.push(i);
 			}
-
 			var projectStaffListIteratorEmailList = [];
-
 			projectStaffListIterator.forEach(function(email) {
-
 				if (typeof goaljQueryContent[email] !== "undefined") {
-
 					if ( goaljQueryContent[email].checked ) {
-
 						projectStaffListIteratorEmailList.push(goaljQueryContent[email].value);
-
 					}
-
 				}
-
 			})
-			
 			var dictKeyName2 = "stageGoal" + goalNumber + "allocationList";
 			singleStageGoesToAssignmentToDBAbove[dictKeyName2] = projectStaffListIteratorEmailList;
-		
+
+			//for goal progress percentage
+
+			var goalProgressPercentageContent = $(`#substageGoalThirdInput-value-${stageNumber}-${goalNumber}`).val();
+
+			var dictKeyName3 = "stageGoal" + goalNumber + "ProgressPercentage";
+
+			if (typeof goalProgressPercentageContent !== undefined) {
+				singleStageGoesToAssignmentToDBAbove[dictKeyName3] = goalProgressPercentageContent;
+			}
+
+			//for goal duedate
+
+			var goalDuedate = $(`#substageGoalFourthInput-value-${stageNumber}-${goalNumber}`).val();
+
+			var dictKeyName4 = "stageGoal" + goalNumber + "DueDate";
+
+			if (typeof goalDuedate !== undefined) {
+				singleStageGoesToAssignmentToDBAbove[dictKeyName4] = goalDuedate;
+			}
+
+			//for overall status
+
+			var goalOverallStatus = $(`#substageGoalFifthInput-value-${stageNumber}-${goalNumber}`).val();
+
+			console.log(goalOverallStatus)
+
+			var dictKeyName5 = "stageGoal" + goalNumber + "goalOverallStatus";
+
+			if (typeof goalOverallStatus !== undefined) {
+				singleStageGoesToAssignmentToDBAbove[dictKeyName5] = goalOverallStatus;
+			}
+
 		});
 		
 		assignmentToDB.push(singleStageGoesToAssignmentToDBAbove);
+
+		console.log(assignmentToDB);
 	});
 
 	firebaseProjectDB.push({
@@ -382,7 +431,8 @@ function submitProject() {
 		dueDate: projectDueDateToDB,
 		description: projectDescriptionToDB,
 		permission: projectStaffList,
-		assignment: assignmentToDB
+		assignment: assignmentToDB,
+		comments: commentsToDB
 	});
 
 	frontPageLeftPreview.empty();
@@ -518,362 +568,282 @@ function expandInfo(projectKey) {
 	frontPageLeft.hide()
 	frontPageRight.hide()
 	frontPageDetail.css("display", "inline");
-	frontPageDetail.append(
-		`
-		<div class="stages">
-			<div class="frontPageDetail-stage1">
-	            <h4>Step 1: Setting Up</h4>
-	            <h6>Deadline: July 1, 2016 | Finished: Delayed by Four days</h6>
-	            <p>
-	            a. Finish the software backbone </br>
-	            b. Determine the scope of the software </br>
-	            c. Assess the product appeal </br>
+
+	var showProjectAssignment = projectList[projectKey].assignment;
+	var stageNumber = 1;
+
+	showProjectAssignment.forEach(function(eachStage) {
+
+		$(".stages").append(
+			`
+			<div class="frontPageDetail-stage${stageNumber}">
+	            <h4>Step ${stageNumber}: ${eachStage.stageTopic}</h4>
+	            <h6>Deadline: ${eachStage.dueDate} | Finished: Delayed by Four days</h6>
+	            <p class="stage-stageGoal-${stageNumber}">
 	            </p>
 			</div>
+			`
+		);
 
-			<div class="frontPageDetail-stage2">
-	            <h4>Step 2: Setting Up</h4>
-	            <h6>Deadline: July 1, 2016 | Finished: Delayed by Four days</h6>
-	            <p>
-	            a. Finish the software backbone </br>
-	            b. Determine the scope of the software </br>
-	            c. Assess the product appeal </br>
-	            </p>
+		frontPageDetail.append(
+			`
+			<div class="stage-detail">
+				Task:</br>
+				<table class="frontPageDetailTable-stage${stageNumber}">
+					<tr class="stage-detail-heading-brief">
+					Step ${stageNumber}: ${eachStage.stageTopic} | Assignments 14/16 | Comments 20 | Todos 14 | Status 60%
+					</tr>
+				</table>
 			</div>
+			`
+		)
 
-			<div class="frontPageDetail-stage3">
-	            <h4>Step 3: Setting Up</h4>
-	            <h6>Deadline: July 1, 2016 | Finished: Delayed by Four days</h6>
-	            <p>
-	            a. Finish the software backbone </br>
-	            b. Determine the scope of the software </br>
-	            c. Assess the product appeal </br>
-	            </p>
-			</div>
+		var stageGoalObjectKeyArray = Object.keys(eachStage).slice(0, -2);
 
-			<div class="frontPageDetail-stage4">
-	            <h4>Step 4: Setting Up</h4>
-	            <h6>Deadline: July 1, 2016 | Finished: Delayed by Four days</h6>
-	            <p>
-	            a. Finish the software backbone </br>
-	            b. Determine the scope of the software </br>
-	            c. Assess the product appeal </br>
-	            </p>
-			</div>
-		</div>
+		var eachStageGoalIndex = 1;
 
-		<div class="stage-detail">
-			Task:</br>
-			<table>
-				<tr class="stage-detail-heading-brief">
-				a. Finish the software backbone | Assignments 14/16 | Comments 20 | Todos 14 | Status 60%
-				</tr>
-				<tr class="stage-detail-substeps">
-					<td class="stage-detail-substeps-index">a-1</td>
-					<td class="stage-detail-substeps-task">Finish QA Testing</td>
-					<td class="stage-detail-substeps-staff">Won Jun Hong</td>
-					<td class="stage-detail-substeps-staffFinished">X</td>
-					<td class="stage-detail-substeps-reviewer">Roland Cassirer</td>
-					<td class="stage-detail-substeps-status">Reviewed and Approved</td>
-					<td class="stage-detail-substeps-duedate">by August 15, 2016</td>
-					<td class="stage-detail-substeps-dudedateChange">ON TARGET</td>
-				</tr>
-				<tr>
-					<td>a-2</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-				<tr>
-					<td>a-3</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-				<tr>
-					<td>a-4</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-			</table>
+		stageGoalObjectKeyArray.forEach(function(eachStageGoal) {
 
-			<table>
-				<tr>
-				b. Finish the software backbone | Assignments 14/16 | Comments 20 | Todos 14 | Status 60%
-				</tr>
-				<tr>
-					<td>b-1</td>
-					<td>Finish QA Testing</td>
-					<td>Won Jun Hong</td>
-					<td>X</td>
-					<td>Roland Cassirer</td>
-					<td>Reviewed and Approved</td>
-					<td>by August 15, 2016</td>
-					<td>ON TARGET</td>
-				</tr>
-				<tr>
-					<td>b-2</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-				<tr>
-					<td>b-3</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-			</table>
+			if (eachStageGoal.slice(-14) !== "allocationList") {
+				$(`.stage-stageGoal-${stageNumber}`).append(
+					`
+					<li>${eachStage[eachStageGoal]}</li>
+					`
+				);
 
-			<table>
-				<tr>
-				c. Finish the software backbone | Assignments 14/16 | Comments 20 | Todos 14 | Status 60%
-				</tr>
-				<tr>
-					<td>c-1</td>
-					<td>Finish QA Testing</td>
-					<td>Won Jun Hong</td>
-					<td>X</td>
-					<td>Roland Cassirer</td>
-					<td>Reviewed and Approved</td>
-					<td>by August 15, 2016</td>
-					<td>ON TARGET</td>
-				</tr>
-				<tr>
-					<td>c-2</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-				<tr>
-					<td>c-3</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-				<tr>
-					<td>c-4</td>
-					<td>Finish Design Implementation</td>
-					<td>Won Jun Hong</td>
-					<td>Work In Progress</td>
-					<td>Ilana Gonzva</td>
-					<td>Waiting for Completion</td>
-					<td>by August 12, 2016</td>
-					<td>DELAYED to August 18, 2016</td>
-				</tr>
-			</table>
+				$(`.frontPageDetailTable-stage${stageNumber}`).append(
+					`
+					<tr class="stage-detail-substeps">
+						<td class="stage-detail-substeps-index">Step ${eachStageGoalIndex}:</td>
+						<td class="stage-detail-substeps-task">${eachStage[eachStageGoal]}</td>
+						<td class="stage-detail-substeps-staff-${stageNumber}-${eachStageGoal}"></td>
+						<td class="stage-detail-substeps-staffFinished">In Progress</td>
+						<td class="stage-detail-substeps-reviewer">Roland Cassirer</td>
+						<td class="stage-detail-substeps-status">Reviewed and Approved</td>
+						<td class="stage-detail-substeps-duedate">by August 15, 2016</td>
+						<td class="stage-detail-substeps-dudedateChange">ON TARGET</td>
+					</tr>
+					`
+				);
 
-		</div>
+				eachStageGoalIndex += 1;
 
-		<div class="Team Announcements">
-			This section is reserved for the team announcements.
-		</div>
+				var stageAllocationList = eachStage[eachStageGoal + "allocationList"];
 
-		<div class="Popular Comments">
-			This section is reserved for popular comments.
-		</div>
-		`
-	)
+				if (stageAllocationList.length > 0) {
+
+					stageAllocationList.forEach(function(allocatedTo) {
+						if (chatTargetBrowserDB[allocatedTo] === undefined) {
+							$(`.stage-detail-substeps-staff-${stageNumber}-${eachStageGoal}`).append(
+							`${allocatedTo}</br>`
+						);
+						} else {
+							$(`.stage-detail-substeps-staff-${stageNumber}-${eachStageGoal}`).append(
+							`${chatTargetBrowserDB[allocatedTo][0]}</br>`	
+						);					
+						}
+					});
+				};
+			};
+
+		});
+
+		stageNumber += 1;
+
+	});
 }
+
+// function enterComment(projectKey) {
+// 	console.log(projectKey);
+
+
+
+// 	var commentFirebaseDB = "https://wonjunhong-test.firebaseio.com/projectDB/"+projectKey+"/assignment/0/comments";
+// 	var updateUserDBInfo = new Firebase(currentUserDBInfoURL);
+// 	updateUserDBInfo.update({ userName: $('.nameChange').val()});
+// 	userProfilePreview.empty();
+
+
+
+
+
+// }
+
 
 function loadProjects(projectsInFirebase, currentUserEmail) {
 	projectsInFirebase.on("value", function(projects) {
 		projectList = projects.val();
 		projectsInFirebaseKeys = Object.keys(projectList);
 
-		var i = 0;
+		var randomColorChoser = 0;
 
 		projectsInFirebaseKeys.forEach(function(projectKey) {
 
 			var projectPermissionNumber = 1;
 
 			if (typeof projectList[projectKey].permission !== "undefined") {
-				projectPermissionNumber = projectList[projectKey].permission.length+1;
+				projectPermissionNumber = projectList[projectKey].permission.length + 1;
 			};
 
+			var assignments = projectList[projectKey].assignment;
 			var numberOfAssignments = projectList[projectKey].assignment.length;
+			
 			var numberOfComments = 0;
+			var totalCommentsNumber = 0;
 
 			var iteratorRunPrep = projectList[projectKey].assignment;
 
 			iteratorRunPrep.forEach(function(eachAssignment) {
 				if (typeof eachAssignment.comments !== "undefined") {
 					numberOfComments = numberOfComments + eachAssignment.comments.length;
+					totalCommentsNumber += numberOfComments;
 				};
 			});
+
+			totalNumberOfComments.empty();
+			totalNumberOfComments.append(totalCommentsNumber);
 
 			projectPreview = $(
 				`
 				<ul class="project-preview">
-					<div class="project-preview-project-topic">
-						${projectList[projectKey].projectTopic}
+					<div class="project-preview-project-left">
+						${projectList[projectKey].projectTopic.substring(0,250)}
 					</div>	
-					<div class="project-preview-project-creator">
-						Deadline ${projectList[projectKey].dueDate} |
-						Led by <a href=${projectList[projectKey].creatorEmail}>${projectList[projectKey].creatorName}</a> |
-						${projectPermissionNumber} Members
+					<div class="project-preview-project-middle">
+						10 Assignments </br></br>
+						${totalNumberOfComments.length} Comments
 					</div>
-				    <div class="progress">
-			            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="${projectList[projectKey].status}">
-			                <span class="sr-only">${projectList[projectKey].status} Completed</span>
-			            </div>
-			        </div>
-			        <div class="status-dashboard">
-			        	Progress: ${projectList[projectKey].status} <b>|</b>
-			        	Assignments: ${numberOfAssignments} <b>|</b>
-			        	Action Items: 2 <b>|</b>
-			        	Comments: ${numberOfComments}			        	
-			        </div>
-			        <div class="project-preview-descriptions">
-			        	${projectList[projectKey].description}
-			        </div>
+					<div class="project-preview-project-right">
+						Led By ${projectList[projectKey].creatorName}</br></br>
+						Finish by ${projectList[projectKey].dueDate}
+					</div>
 				</ul>
-				`);
-			$('.progress .progress-bar').css("width",
-			        function() {
-			            return $(this).attr("aria-valuenow");
-			        }
-			)
+				`
+			);
 
-			i += 1;
-			var iterator;
-			if (i < 7) {
-				iterator = i;
-			}
-			else if (i >= 7) {
-				iterator = i % 7;
-			}
-
-			var colorArray = ["#0073b7", "#00a65a", "#ba79cb", "#f56954",  "#ec3b83", "#00c0ef",  "#00b29e"];
-			// var color = colorArray[Math.floor(Math.random() * colorArray.length)]; 
-			var color = colorArray[iterator];
-
-			projectPreview.css("backgroundColor", color);
-			
 			projectPreview.on('click', function(event) {
-				projectLists.css("backgroundColor", color);
+				frontPageRight.css("display", "inline");
+				projectLists.empty();
 				projectLists.append(
 				`
-				<div class="container">
-					<div class="row">
-				        <div class="timeline-centered">
-				        <article class="timeline-entry">
-				            <div class="timeline-entry-inner">
-				                <div class="timeline-icon bg-success">
-				                    <i class="entypo-feather"></i>
-				                </div>
-				                <div class="timeline-label">
-				                    <h4>Step 1: Setting Up</h4>
-				                    <h6>Deadline: July 1, 2016 | Finished: Delayed by Four days</h6>
-				                    <p>
-				                    1. Finish the software backbone </br>
-				                    2. Determine the scope of the software </br>
-				                    3. Assess the product appeal </br>
-				                    </p>
-				                </div>
-				            </div>
-				        </article>
-				        <article class="timeline-entry">
-				            <div class="timeline-entry-inner">
-				                <div class="timeline-icon bg-secondary">
-				                    <i class="entypo-suitcase"></i>
-				                </div>
-				                <div class="timeline-label">
-				                    <h4>Step 2: Chatting Application</h4>
-				                    <h6>Deadline: July 15, 2016 | Finished: Ahead by Four days</h6>
-				                    <p>
-				                    1. Finish the chatting application </br>
-				                    2. Wrap the the QA control and testing </br>
-				                    3. Finish the design piece--the chatting applciation will not be touched from this moment on. </br>
-				                    </p>
-				                </div>
-				            </div>
-				        </article>
-				        <article class="timeline-entry">
-				            <div class="timeline-entry-inner">
-				                <div class="timeline-icon bg-info">
-				                    <i class="entypo-location"></i>
-				                </div>
-				                <div class="timeline-label">
-				                    <h4>Step 3: Project Expansion Piece and Front-end Design</h4>
-				                    <h6>Deadline: August 15, 2016 | In Progress</h6>
-				                    <p>
-				                    1. Finish the expansion piece </br>
-				                    2. Wrap up the design </br>
-				                    3. Final QA </br>
-				                    </p>					               
-				                </div>
-				            </div>
-				        </article>
-				        <article class="timeline-entry">
-				            <div class="timeline-entry-inner">
-				                <div class="timeline-icon bg-warning">
-				                    <i class="entypo-camera"></i>
-				                </div>
-				                <div class="timeline-label">
-				                    <h4>Step 4: Domain Purhcase and Deployment</h4>
-				                    <h6>Deadline: August 20, 2016 | Scheduled</h6>
-				                    <p>
-				                    1. Resolve Final Glitches </br>
-				                    2. Purchasing and Rerouting of Domain </br>
-				                    3. Final Deployment
-				                    </p>
-				                </div>
-				            </div>
-				        </article>
-				        <article class="timeline-entry begin">
-				            <div class="timeline-entry-inner">
-				                <div class="timeline-icon" style="-webkit-transform: rotate(-90deg); -moz-transform: rotate(-90deg);">
-				                    <i class="entypo-flight"></i>
-				                </div>
-				                <div class="fullInfoExpansion">
-				                	<p class="expandInfoButton" onClick="expandInfo('${projectKey}')">Click Here to See the Full Information</p>
-				                </div>
-				            </div>
-				        </article>
-				    </div>					    
+				<div class="project-key-information">
+					<p class="projectTopic">${projectList[projectKey].projectTopic}</p>
+					<div class="projectDetailViewStatusBar">
+						<a href="mailto:${projectList[projectKey].creatorEmail}" class="projectCreatorName">Led by ${projectList[projectKey].creatorName}</a>
+						<p class="projectDueDate">Finish by ${projectList[projectKey].dueDate}</p>
+						<p class="projectStatus">${projectList[projectKey].status} Complete</p>
+					</div>
+					<p class="projectMember">${projectList[projectKey].permission}</p>
+					<p class="projectDescription">${projectList[projectKey].description}</p>
+				</div>
+				<div class="projectDetailView">
+				</div>
+				<div class="comments-cover">
+					<div class="comments-cover-content">
+					</div>
+					<div class="comments-cover-input">
+						<form id="enter-comment-form">
+							<label>Ask or answer questions here</label>
+							<textarea 
+								class="comments-cover-input-form" 
+								placeholder="...please ask or answer questions here..."
+								onkeydown="if (event.keyCode == 13) { enterComment(${projectKey}); }"></textarea>
+						</form>
 					</div>
 				</div>
 				`
 				);
-				frontPageLeft.css("width", "50%");
-				frontPageRight.css("display", "inline");
+
+		    	commentList = projectList[projectKey].comments;
+
+		    	commentKeyList = Object.keys(commentList);
+
+		    	var commentKeyIteratorList = [];
+
+		    	for (i = 0; i < commentKeyList.length; i++) {
+		    		commentKeyIteratorList.push(i);
+		    	};
+
+		    	commentKeyIteratorList.forEach(function(commentKeyIterator) {
+		    		var dictKey = "comment" + commentKeyIterator;
+		    		if (commentList[dictKey][1] === currentUserEmail) {
+						$(".comments-cover-content").append(
+					        `
+					        <div class="comments-by-user">
+					        	<p class="comments-by-user-content">${commentList[dictKey][0]}</p>
+					        	<p class="comments-by-user-writer">written by me</p>
+					        </div>
+					        `
+				    	);			
+		    		} else {
+						$(".comments-cover-content").append(
+					        `
+					        <div class="comments-by-others">
+					        	<p class="comments-by-others-content">${commentList[dictKey][0]}</p>
+					        	<p class="comments-by-others-writer">written by ${commentList[dictKey][1]}</p>
+					        </div>
+					        `
+				    	);		
+		    		};
+		    	});
+
+				assignments.forEach(function(assignment) {
+					var goalLength = Object.keys(assignment);
+					goalLength = (goalLength.length - 2) / 5;
+
+					var goalLengthList = [];
+
+					for (var i = 0; i < goalLength; i++) {
+						goalLengthList.push(i);
+					}
+
+					$(".projectDetailView").append(
+				        `
+				        <div class="assignmentOverview">
+					        <p class="assignmentOverviewTitle">Assignment Overview</p></br>
+					        <p class="assignmentOverviewTitleStageTopic">${assignment.stageTopic}</p>
+					        <p class="assignmentOverviewTitleStageMission">${assignment.stageMission}</p>
+					    </div>
+				        `
+				    );
+
+					goalLengthList.forEach(function(eachGoal) {
+						var dictKeyGoalTopic = "stageGoal" + eachGoal;
+						var dictKeyGoalDueDate = "stageGoal" + eachGoal + "DueDate";
+						var dictKeyGoalProgressPercentage = "stageGoal" + eachGoal + "ProgressPercentage";
+						var dictKeyGoalAllocationList = "stageGoal" + eachGoal + "allocationList";
+						var dictKeyGoalOverallStatus = "stageGoal" + eachGoal + "goalOverallStatus";
+
+						$(".projectDetailView").append(
+					        `
+					        <div class="assignmentGoal">
+						        <p class="assignmentGoalNumber">Goal ${eachGoal + 1}</p>
+						        <p class="assignmentGoalAssignmentGoalTopic">${assignment[dictKeyGoalTopic]}</p>
+						    </div>
+					        `
+					    );
+
+						var allocatedList = assignment[dictKeyGoalAllocationList];
+						allocatedList.forEach(function(allocatedIndividualEach) {
+							$(".projectDetailView").append(
+						        `
+						        <div class="assignmentAllocatedIndividual">
+							        <p>${allocatedIndividualEach}</p>
+						        </div>
+						        `
+					    	);		
+				    	});
+					});
+				});
 			});
+
 			if (projectList[projectKey].creatorEmail === currentUserEmail) {
 				frontPageLeftPreview.append(projectPreview);
 				projectList[projectKey].permission.forEach(function (perm) {
-					chatTargetList.push(perm)
-				})
-			}
+					chatTargetList.push(perm);
+				});
+			};
+
 			var permission = projectList[projectKey].permission;
 			permission.forEach(function (perm) {
 				if (perm === currentUserEmail) {
@@ -882,8 +852,9 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 						chatTargetList.push(perm2);
 					});
 					chatTargetList.push(projectList[projectKey].creatorEmail);
-				}
-			})
+				};
+			});
+
 		});
 
 	})
@@ -923,9 +894,6 @@ function login() {
 	firebaseAuth.signInWithPopup(provider).then(function(result) {
 		currentUser = result.user;
 		currentUserName = currentUser.displayName;
-		// if (currentUserName === null) {
-		// 	currentUserName = currentUser.email;
-		// }
 		currentUserEmail = currentUser.email;
 		currentUserPhoto = currentUser.photoURL;
 

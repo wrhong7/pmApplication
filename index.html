@@ -87,26 +87,25 @@
 
 					<ul class="inbox-nav inbox-divider">
 						<li>
-							<button id="addProjectButton" class="button-primary" onclick="addProject()">New Project</button>
+							<button id="addProjectButton" class="button-primary" onclick="addProject()">
+								New Project
+							</button>
 						</li>
 						<li>
-						  <a href="#"><i class="fa fa-inbox"></i> Current Projects <span class="label label-danger pull-right">2</span></a>
+						  <a onclick="hideProjectDetail()"><i class="fa fa-inbox"></i> Current Projects <span class="number-of-projects"></span></a>
 
 						</li>
 						<li>
-						  <a href="#"><i class="fa fa-envelope-o"></i> Comments <span class="label label-info pull-right">34</span></a>
+						  <a href="#"><i class="fa fa-envelope-o"></i> Comments <span class="total-number-of-comments"></span></a>
 						</li>
 						<li>
-						  <a href="#"><i class=" fa fa-external-link"></i> Assignments <span class="label label-info pull-right">30</span></a>
+						  <a href="#"><i class=" fa fa-external-link"></i> Assignments <span class="label label-info pull-right">N/A</span></a>
 						</li>
 						<li>
-						  <a href="#"><i class=" fa fa-trash-o"></i> Todos <span class="label label-info pull-right">8</span></a>
+						  <a href="#"><i class=" fa fa-trash-o"></i> Todos <span class="label label-info pull-right">N/A</span></a>
 						</li>
 						<li>
-						  <a href="#"><i class=" fa fa-trash-o"></i> Calander <span class="label label-info pull-right">8</span></a>
-						</li>
-						<li>
-						  <a href="#"><i class=" fa fa-trash-o"></i> Cloud Storage <span class="label label-info pull-right">8</span></a>
+						  <a href="#"><i class=" fa fa-trash-o"></i> Calander <span class="label label-info pull-right">N/A</span></a>
 						</li>
 					</ul>
 
@@ -140,16 +139,14 @@
 					<div class="inbox-head"></div>
 					<div class="inbox-body">
 						<div class="front-page-left">
-							<h6 class="front-page-projects-title">Projects in Progress</h6>
+							<div class="projectList"></div>
 						    <div class="project-cover"></div>
 						    <div class="chat-window"></div>
 						    <div class="front-page-left-project-preview"></div>
 						</div>
-						<div class="front-page-right">
-						    <button id="hideProjectDetailButton" onclick="hideProjectDetail()">Hide Details</button>
-						    <div class="projectList"></div>          
-						</div>
 						<div class="front-page-detail">
+							<div class="stages"></div>
+							<div class="stage-detail"></div>
 						</div>
 						<div class="addProjectFields">
 						</div>

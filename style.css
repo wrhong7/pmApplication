@@ -49,7 +49,7 @@
   }
   .front-page-right {
     display: none;
-    width: 50%;
+    width: 100%;
     float: left;
     padding: 0 5px 5px 5px;
     background-color: whitesmoke;
@@ -170,7 +170,6 @@
       overflow-y: scroll;
       color: #6a6a6a;
       background-color: #E5E8EF;
-      overflow-y: scroll;
   }
   .sidebar-name 
   {
@@ -200,7 +199,7 @@
   {
       width: 32px;
       height: 32px;
-      vertical-align:middle;
+      vertical-align: middle;
       border-radius: 5px;
   }
   .popup-box
@@ -261,7 +260,7 @@
     font-weight: 700;
     padding: 1px 4px 1px 4px;
     height: 8%;
-      color: #ff8000;
+    color: #ff8000;
   }
   .sender-wrap {
     clear: both;
@@ -278,7 +277,7 @@
     padding: 0 0 0 0;
     position: relative;
     max-width: 253px;
-    display:table-cell;
+    display: table-cell;
     float: right;
   }
   .receiver {
@@ -468,59 +467,8 @@
     margin-top: 30px;
     padding-left: 10px;
   }
-  .project-preview {
-    width: 90%;
-    background-color: orange;
-    margin: 2.5% 5% 2.5% 5%;
-    border-color: rgb(213, 216, 223);
-    border-radius: 10px;
-  }
-  .project-preview-project-topic {
-      text-align: center;
-      margin-top: 5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: white;
-      margin-top: 10px;
-      padding: 20px;
-  }
-  .project-preview-project-creator {
-    position: relative;
-    text-align: center;
-    color: red;
-    font-weight: 500;
-  }
-  .progress {
-    position: relative;
-    height: 3px;
-    background-color: #303641;
-    overflow: hidden;
-    margin: 10px 0 10px 0;
-  }
-  .progress > .progress-type {
-    position: relative;
-    left: 0px;
-    font-weight: 800;
-    padding: 3px 30px 2px 10px;
-    color: red;
-    background-color: red;
-    border-radius: 5px;
-  }
-  .progress-bar {
-    transition-duration: 10s;
-    background-color: white;
-    width: 0%;
-  }
-  #project-duedate {
-    margin: 0 10% 0 10%;
-    width: 80%;
-    height: 40px;
-  }
-  label {
-    margin: 0 10% 0 10%;
-    width: 80%;
-    height: 20px;  
-  }
+
+
   .two-entry-fields label {
     margin: 20px 0 10px 0;
     width: 80%;
@@ -639,20 +587,43 @@
   .inbox-nav {
     text-align: center;
   }
-  .project-preview-project-creator {
-    color: white;
+
+
+  .project-preview {
+    margin: 0.5% 0 0 0 ;
+    padding: 2% 5% 2% 10%;
+    background-color: white;
+    width: 100%;
+    height: inherit;
+    float: left;
+    font: 40px;
   }
-  .project-preview-project-creator a {
-    color: white;
-    text-transform: uppercase
+
+  .project-preview:hover {
+    background-color: #ffd58e;
+    padding: 2% 2% 2% 13%;
+    -moz-transition: 400ms;
+    -webkit-transition: 400ms;
+    -o-transition: 400ms;
+    transition: 400ms;
   }
-  .status-dashboard {
-    text-align: center;
-    color: white;
+
+  .project-preview-project-left {
+    line-height:1.5em;
+    width: 60%;
+    float: left;
   }
-  .project-preview-descriptions {
-    padding: 20px;
+
+  .project-preview-project-middle {
+    float: left;
+    margin: 0 9% 0 9%;
   }
+
+  .project-preview-project-right {
+    float: left;
+  }
+
+
 
   .timeline-centered {
       position: relative;
@@ -957,32 +928,51 @@
   }
   .allocateGoalButton {
     padding: 0 0 0 0;
-    width: 90px;
+    width: 10.5%;
+    min-width: 90px;
     font-size: 10px;
   }
   .substageGoalFirstInput {
     width: 100%;
-    height: auto;
+    height: 50px;
+    font-size: 12px;
     display: -webkit-flex;
-    -webkit-flex-flow: row wrap;
-    font-size: 12px; 
-    margin: 0;
-    padding: 0;
   }
+  
   .substageGoalSecondInput {
-    width: 100%;
-    height: auto;
-    display: -webkit-flex;
-    -webkit-flex-flow: row wrap;
-    font-size: 12px; 
-    margin: 0;
-    padding: 0;
+    font-size: 12px;
   }
-  .checkbox-element {
-    margin-left: 10px;
-    width: 200px;
-    float: left;
+
+  .substageGoalThirdInput {
+    width: 100%;
     position: relative;
+  }
+  .substageGoalThirdInputProgressPercentage {
+    width: 30%;
+    float: left;
+  }
+  .substageGoalFourthInputDueDate {
+    width: 29%;
+    float: left;
+  }
+  .substageGoalFourthInputOverallStatus {
+    width: 30%;
+    float: left;
+  }
+  .substageProgressPercentage {
+    width: 90%;
+  }
+  .substageDueDate {
+    width: 90%;
+    height: 40px;
+  }
+  .substageOverallStatus {
+    width: 90%;
+  }
+
+  .checkbox-element {
+    width: 220px;
+    float: left;
   }
 
   .checkbox-element-left {
@@ -1079,10 +1069,6 @@
     height: 100px;
   }
 
-  .multistep-container {
-
-  }
-
   .bs-wizard-info {
     margin-top: 50px;
   }
@@ -1092,6 +1078,118 @@
     padding: 0;
     font-size: 14px;
     text-align: center;
+  }
+
+  .projectTopic {
+
+    font-size: 50px;
+    color: #4D5C69;
+  }
+
+  .project-key-information {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+
+
+
+  .projectDetailViewStatusBar {
+    float: left;
+    width: 50%;
+    margin-left: 25%;
+    margin-right: 25%
+  }
+
+  .projectCreatorName {
+    float: left;
+    margin-left: 5%;
+  }
+
+  .projectDueDate {
+    float: left;
+    margin-left: 5%;
+  }
+
+  .projectStatus {
+    float: left;
+    margin-left: 5%;
+  }
+
+  .projectDescription {
+    margin-left: 5%;
+    font-size: 20px;
+  }
+
+  .projectMember {
+    margin-left: 5%;
+  }
+
+  .projectDetailView {
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: #E5E8EF;
+    margin: 0 0 0 10%;
+    float: left;
+    width: 65%;
+    padding: 2% 2% 2% 2%; 
+  }
+
+  .assignmentOverview {
+
+  }
+
+  .assignmentGoal {
+    margin-left: 5%;
+  }
+
+  .assignmentAllocatedIndividual {
+    margin-left: 5%;
+  }
+
+  .comments-cover {
+    width: 20%;
+    float: left;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: #E5E8EF;
+    margin-left: 2px;
+  }
+
+  .comments-by-user-content {
+    margin: 10px 3% 0 27%;
+    padding: 5px;
+    background-color: #ffe0b3;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+
+  .comments-by-user-writer {
+    text-align: right;
+    margin: 0 5% 10px 0;
+    font-size: 13px;
+    color: #bfbfbf;
+  }
+
+  .comments-by-others-content {
+    margin: 10px 27% 0 3%;
+    padding: 5px;
+    background-color: #ffe0b3;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .comments-by-others-writer {
+    text-align: left;
+    margin: 0 0 10px 5%;
+    font-size: 13px;
+    color: #bfbfbf;
+  }
+  .comments-cover-input-form{
+    width: 100%;
+    height: 40px;
+    overflow-y: scroll;
+    font-size: 13px;
   }
 }
 
