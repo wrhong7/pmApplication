@@ -59,6 +59,7 @@ var chatSidebarAlreadyLoaded = [];
 var globalStageNumberPrev;
 var commentList;
 var commentKeyList;
+var commentInputValue;
 
 function hideProjectDetail() {
 	frontPageRight.hide();
@@ -333,13 +334,7 @@ function submitProject() {
 	var assignmentToDB = [];
 
 	var commentsToDB = {
-		comment0: ["what the hell are we talking about--1?", "wjh261@stern.nyu.edu"],
-		comment1: ["what the hell are we talking about--2?", "wjh261@stern.nyu.edu"],
-		comment2: ["what the hell are we talking about--3?", "wjh261@stern.nyu.edu"],
-		comment3: ["what the hell are we talking about--4?", "wjh261@stern.nyu.edu"],
-		comment4: ["what the hell are we talking about--5?", "whong@outlook.com"],
-		comment5: ["what the hell are we talking about--6?", "wjh261@stern.nyu.edu"],
-		comment6: ["what the hell are we talking about--7?", "wjh261@stern.nyu.edu"]
+		commentExampleKey: {commentDictKey: ["what the hell are we talking about--1?", "wjh261@stern.nyu.edu"]}
 	}
 
 	list.forEach(function(stageNumber) {
@@ -653,22 +648,34 @@ function expandInfo(projectKey) {
 	});
 }
 
-// function enterComment(projectKey) {
-// 	console.log(projectKey);
+function enterComment(key) {
+	commentInputValue = $(".comments-cover-input-form").val();
+	commentInputValueArray = [commentInputValue, currentUserEmail, "Not Answered", "Not Highlighted"];
+	var commentFirebaseDB = new Firebase(`https://wonjunhong-test.firebaseio.com/projectDB/${key}/comments`);
+	var commentFirebaseDBInfo = commentFirebaseDB.push();
+	 	commentFirebaseDBInfo.set({commentDictKey: commentInputValueArray});
+	$(".comments-cover-input-form").val("");
+	
+
+	
+	setTimeout(function() {
+		commentList = projectList[key].comments;
+		commentKeyList = Object.keys(commentList);
+		justEnteredCommentKey = commentKeyList.splice(-2)[0];
+		justEnteredComment = commentList[justEnteredCommentKey]["commentDictKey"][0];
+		console.log(justEnteredComment);
+		$(`#comments-cover-content-${key}`).append(
+			`
+	        <div class="comments-by-user">
+	        	<p class="comments-by-user-content">${justEnteredComment}</p>
+	        	<p class="comments-by-user-writer">written by me</p>
+	        </div>
+			`
+		);	
+	}, 1000);
 
 
-
-// 	var commentFirebaseDB = "https://wonjunhong-test.firebaseio.com/projectDB/"+projectKey+"/assignment/0/comments";
-// 	var updateUserDBInfo = new Firebase(currentUserDBInfoURL);
-// 	updateUserDBInfo.update({ userName: $('.nameChange').val()});
-// 	userProfilePreview.empty();
-
-
-
-
-
-// }
-
+}
 
 function loadProjects(projectsInFirebase, currentUserEmail) {
 	projectsInFirebase.on("value", function(projects) {
@@ -678,6 +685,8 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 		var randomColorChoser = 0;
 
 		projectsInFirebaseKeys.forEach(function(projectKey) {
+
+			var projectKeyForEnteringComment = projectKey.toString()
 
 			var projectPermissionNumber = 1;
 
@@ -722,6 +731,7 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 			);
 
 			projectPreview.on('click', function(event) {
+
 				frontPageRight.css("display", "inline");
 				projectLists.empty();
 				projectLists.append(
@@ -739,7 +749,7 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 				<div class="projectDetailView">
 				</div>
 				<div class="comments-cover">
-					<div class="comments-cover-content">
+					<div class="comments-cover-content" id="comments-cover-content-${projectKey}">
 					</div>
 					<div class="comments-cover-input">
 						<form id="enter-comment-form">
@@ -747,7 +757,9 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 							<textarea 
 								class="comments-cover-input-form" 
 								placeholder="...please ask or answer questions here..."
-								onkeydown="if (event.keyCode == 13) { enterComment(${projectKey}); }"></textarea>
+								onkeydown="if (event.keyCode == 13) { enterComment('${projectKey}') }"
+							>
+							</textarea>
 						</form>
 					</div>
 				</div>
@@ -758,34 +770,29 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 
 		    	commentKeyList = Object.keys(commentList);
 
-		    	var commentKeyIteratorList = [];
-
-		    	for (i = 0; i < commentKeyList.length; i++) {
-		    		commentKeyIteratorList.push(i);
-		    	};
-
-		    	commentKeyIteratorList.forEach(function(commentKeyIterator) {
-		    		var dictKey = "comment" + commentKeyIterator;
-		    		if (commentList[dictKey][1] === currentUserEmail) {
-						$(".comments-cover-content").append(
-					        `
-					        <div class="comments-by-user">
-					        	<p class="comments-by-user-content">${commentList[dictKey][0]}</p>
-					        	<p class="comments-by-user-writer">written by me</p>
-					        </div>
-					        `
-				    	);			
-		    		} else {
-						$(".comments-cover-content").append(
-					        `
-					        <div class="comments-by-others">
-					        	<p class="comments-by-others-content">${commentList[dictKey][0]}</p>
-					        	<p class="comments-by-others-writer">written by ${commentList[dictKey][1]}</p>
-					        </div>
-					        `
-				    	);		
-		    		};
-		    	});
+		    	commentKeyList.forEach(function(commentDictKey) {
+		    		if (typeof(commentList[commentDictKey]) !== undefined && commentDictKey !== "commentExampleKey") {
+			    		if (`${commentList[commentDictKey]["commentDictKey"][1]}` === currentUserEmail) {
+							$(".comments-cover-content").append(
+						        `
+						        <div class="comments-by-user">
+						        	<p class="comments-by-user-content">${commentList[commentDictKey]["commentDictKey"][0]}</p>
+						        	<p class="comments-by-user-writer">written by me</p>
+						        </div>
+						        `
+					    	);			
+			    		} else {
+							$(".comments-cover-content").append(
+						        `
+						        <div class="comments-by-others">
+						        	<p class="comments-by-others-content">${commentList[commentDictKey]["commentDictKey"][0]}</p>
+						        	<p class="comments-by-others-writer">written by ${commentList[commentDictKey]["commentDictKey"][1]}</p>
+						        </div>
+						        `
+					    	);		
+			    		};
+			    	};
+		    	})
 
 				assignments.forEach(function(assignment) {
 					var goalLength = Object.keys(assignment);
