@@ -1191,6 +1191,42 @@
     overflow-y: scroll;
     font-size: 13px;
   }
+  .comments-by-user-content-one-line {
+    font-size: 10px;
+    margin: 2px 2px 0px 30%;  
+  }
+  .comments-by-user-content-message-unanswered {
+    float: left;
+    margin-right: 5px;
+  }
+  .comments-by-user-content-message-unanswered:hover {
+    float: left;
+    font-size: 15px;
+    margin-right: 5px;
+    font-weight: 600;
+  }
+  .comments-by-user-content-message-edit:hover {
+    float: left;
+    font-size: 15px;
+    color: blue;
+    margin-right: 5px;
+    font-weight: 600;
+  }
+  .comments-by-user-content-message-delete:hover {
+    float: left;
+    font-size: 15px;
+    color: red;
+    margin-right: 5px;
+    font-weight: 600;
+  }
+  .comments-by-user-content-message-edit {
+    float: left;
+    margin-right: 5px;
+  }
+  .comments-by-user-content-message-delete {
+    float: left;
+    margin-right: 5px;
+  }
 }
 
 

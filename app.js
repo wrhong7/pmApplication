@@ -673,8 +673,6 @@ function enterComment(key) {
 			`
 		);	
 	}, 1000);
-
-
 }
 
 function loadProjects(projectsInFirebase, currentUserEmail) {
@@ -776,8 +774,15 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 							$(".comments-cover-content").append(
 						        `
 						        <div class="comments-by-user">
-						        	<p class="comments-by-user-content">${commentList[commentDictKey]["commentDictKey"][0]}</p>
-						        	<p class="comments-by-user-writer">written by me</p>
+						        	<div class="comments-by-user-content">
+						        		<div class="comments-by-user-content-message">${commentList[commentDictKey]["commentDictKey"][0]}</div>
+						        	</div>
+					     			<div class="comments-by-user-content-one-line">
+						        		<div class="comments-by-user-content-message-unanswered" onclick="markAnswered('${commentDictKey}')">unanswered</div>
+						        		<div class="comments-by-user-content-message-edit">edit</div>
+						        		<div class="comments-by-user-content-message-delete">delete</div>
+						        	</div>
+						        	<p class="comments-by-user-writer">me</p>
 						        </div>
 						        `
 					    	);			
@@ -793,6 +798,18 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 			    		};
 			    	};
 		    	})
+
+		    	$(".comments-by-user-content-message-unanswered").hover(
+		    		function() {
+		    			var $this = $(this); 
+		    			$this.data('unanswered', $this.text());
+		    			$this.text('answered');
+		    		}, 
+		    		function() {
+		    			var $this = $(this);
+		    			$this.text($this.data('unanswered'));
+		    		}
+		    	);
 
 				assignments.forEach(function(assignment) {
 					var goalLength = Object.keys(assignment);
@@ -867,6 +884,10 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 	})
 	addChatTargetList();
 };
+
+function markAnswered(key) {
+	console.log(key);
+}
 
 function updateName() {
 	currentUserDBInfoURL = "https://wonjunhong-test.firebaseio.com/userinfoDB/"+userinfoInFirebaseCurrentUserKey;
