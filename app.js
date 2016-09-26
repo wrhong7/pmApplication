@@ -65,17 +65,9 @@ function hideProjectDetail() {
 	frontPageLeft.css("width", "100%");
 	frontPageLeft.css("display", "inline");
 	projectLists.hide();
-
-
-
-
-	// frontPageRight.hide();
-	// addProjectDetails.hide();
-
-	// addProjectButton.css("display", "inline");
-	// // projectLists.empty();
-	// frontPageDetail.empty();
-	// frontPageRight.hide();
+	frontPageRight.hide();
+	addProjectButton.css("display", "inline");
+	addProjectDetails.empty();
 };
 function closeAddProject() {
 	frontPageRight.hide();
@@ -179,7 +171,7 @@ function addProject() {
 							id="project-staff"
 							class="form-control"  
 							type="text"
-							onkeydown="if (event.keyCode === 186 || event.keyCode === 13 || event.keyCode === 188 || event.keyCode === 9) { addStaffToProject() }"						
+							onkeydown="if ((event.metaKey || event.ctrlKey) && event.keyCode == 13) { addStaffToProject() }"						
 							placeholder="Email or Name"
 						></input>
 					</div>
@@ -654,6 +646,14 @@ function expandInfo(projectKey) {
 	});
 }
 
+function highlight(projectKey, commentKey) {
+	currentUserDBInfoURL = "https://wonjunhong-test.firebaseio.com/projectDB/"+projectKey+"/comments/"+commentKey+'/commentDictKey';
+	var updateUserDBInfo = new Firebase(currentUserDBInfoURL);
+	updateUserDBInfo.update({3: "highlighted"});
+	$(`#comments-by-user-content-message-highlight-${projectKey}-${commentKey}`).empty();
+	$(`#comments-by-user-content-message-highlight-${projectKey}-${commentKey}`).append("highlighted");
+}
+
 function enterComment(projectKey) {
 	commentInputValue = $(".comments-cover-input-form").val();
 	commentInputValueArray = [commentInputValue, currentUserEmail, "Not Answered", "Not Highlighted"];
@@ -666,21 +666,55 @@ function enterComment(projectKey) {
 		commentList = projectList[projectKey].comments;
 		commentKeyList = Object.keys(commentList);
 		justEnteredCommentKey = commentKeyList.splice(-2)[0];
-		console.log(commentList[justEnteredCommentKey]["commentDictKey"][0])
+
+		var justEnteredComment = commentList[justEnteredCommentKey]["commentDictKey"][0];
+		var justEnteredCommentReplaced = justEnteredComment.replace('\n', '<br/><br/>');
+
 		$(`#comments-cover-content-${projectKey}`).append(
 			`
-	        <div class="comments-by-user">
-	        	<p class="comments-by-user-content">${commentList[justEnteredCommentKey]["commentDictKey"][0]}</p>
-	        </div>
- 			<div class="comments-by-user-content-one-line">
-        		<div class="comments-by-user-content-message-unanswered" onclick="markAnswered('${projectKey}', '${justEnteredCommentKey}')">${commentList[justEnteredCommentKey]["commentDictKey"][2]}</div>
-        		<div class="comments-by-user-content-message-edit">edit</div>
-        		<div class="comments-by-user-content-message-delete">delete</div>
-        	</div>
-        	<p class="comments-by-user-writer">me</p>	        
+	        <div 
+	        	class="comments-by-user"
+	        	id="comments-by-user-content-${justEnteredCommentKey}"
+	        >
+	        	<div class="comments-by-user-content">
+	        		<div 
+	        			class="comments-by-user-content-message"
+	        			id="comments-by-user-content-message-${projectKey}-${justEnteredCommentKey}"
+	        		>${justEnteredCommentReplaced}</div>
+	        	</div>
+	 			<div class="comments-by-user-content-one-line">
+	        		<div 
+	        			class="comments-by-user-content-message-unanswered" 
+	        			onclick="markAnswered('${projectKey}', '${justEnteredCommentKey}')"
+	        			id="comments-by-user-content-message-unanswered-${projectKey}-${justEnteredCommentKey}"
+	        		>${commentList[justEnteredCommentKey]["commentDictKey"][2]}</div>
+	        		<div 
+	        			class="comments-by-user-content-message-highlight"
+	        			id="comments-by-user-content-message-highlight-${projectKey}-${justEnteredCommentKey}" 
+	        			onclick="highlight('${projectKey}', '${justEnteredCommentKey}')"
+	        		>${commentList[justEnteredCommentKey]["commentDictKey"][3]}</div>
+	        		<div 
+	        			class="comments-by-user-content-message-edit" 
+	        			onclick="editComment('${projectKey}', '${justEnteredCommentKey}')"
+	        			id="comments-by-user-content-message-edit-${projectKey}-${justEnteredCommentKey}"
+	        		>edit</div>
+	        		<div 
+	        			class="comments-by-user-content-message-delete"
+	        			onclick="deleteComment('${projectKey}', '${justEnteredCommentKey}')"
+	        		>delete</div>
+	        	</div>
+	        	<p class="comments-by-user-writer">me</p>	
+	       	</div>        
 			`
 		);	
-	}, 500);
+	}, 2000);
+}
+
+function deleteComment(projectKey, commentKey) {
+	console.log("this is working")
+	var currentUserDBInfoURL = new Firebase("https://wonjunhong-test.firebaseio.com/projectDB/"+projectKey+"/comments/"+commentKey)
+	currentUserDBInfoURL.remove();
+	$(`#comments-by-user-content-${commentKey}`).empty();
 }
 
 function markAnswered(projectKey, commentKey) {
@@ -690,7 +724,7 @@ function markAnswered(projectKey, commentKey) {
 	setTimeout(function() {
 		$(`#comments-by-user-content-message-unanswered-${projectKey}-${commentKey}`).empty();
 		$(`#comments-by-user-content-message-unanswered-${projectKey}-${commentKey}`).append("answered");
-	}, 500);
+	}, 300);
 }
 
 function modifyComment(projectKey, commentKey) {
@@ -699,7 +733,8 @@ function modifyComment(projectKey, commentKey) {
 	var updateUserDBInfo = new Firebase(currentUserDBInfoURL);
 	updateUserDBInfo.update({0: enteredValue});
 	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).empty();
-	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).append(enteredValue);	
+	var enteredValueReplaced = enteredValue.replace('\n', '<br/><br/>');
+	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).append(enteredValueReplaced);	
 }
 
 function editComment(projectKey, commentKey) {
@@ -708,10 +743,11 @@ function editComment(projectKey, commentKey) {
 	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).append(
 		`
 		<textarea
-			id="comments-by-user-content-modifiedMessage-${projectKey}-${commentKey}"
-			onkeydown="if (event.keyCode == 13) { modifyComment('${projectKey}', '${commentKey}') }"
-			>${originalValue}
-		</textarea>
+			class="comments-by-user-content-message-textarea"
+			id="comments-by-user-content-modifiedMessage-${projectKey}-${commentKey}" 
+			onkeydown="if ((event.metaKey || event.ctrlKey) && event.keyCode == 13)  { modifyComment('${projectKey}', '${commentKey}') }"
+		>${originalValue}</textarea>
+		<p class="submit-instruction">Command (or Ctrl) + Enter to Submit</p>
 		`
 	);
 }
@@ -791,13 +827,11 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 					</div>
 					<div class="comments-cover-input">
 						<form id="enter-comment-form">
-							<label>Ask or answer questions here</label>
 							<textarea 
 								class="comments-cover-input-form" 
-								placeholder="...please ask or answer questions here..."
-								onkeydown="if (event.keyCode == 13) { enterComment('${projectKey}') }"
-							>
-							</textarea>
+								onkeydown="if ((event.metaKey || event.ctrlKey) && event.keyCode == 13) { enterComment('${projectKey}') }"
+								placeholder="Ask & Answer Here\n\nCommand (or Ctrl) + Enter to Submit"
+							></textarea>
 						</form>
 					</div>
 				</div>
@@ -806,26 +840,41 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 		    	commentList = projectList[projectKey].comments;
 		    	commentKeyList = Object.keys(commentList);
 		    	commentKeyList.forEach(function(commentDictKey) {
+		    		var content = commentList[commentDictKey]["commentDictKey"][0].replace('\n', '<br/>');
 		    		if (typeof(commentList[commentDictKey]) !== undefined && commentDictKey !== "commentExampleKey") {
 			    		if (`${commentList[commentDictKey]["commentDictKey"][1]}` === currentUserEmail) {
 							$(".comments-cover-content").append(
 						        `
-						        <div class="comments-by-user">
+						        <div 
+						        	class="comments-by-user" 
+						        	id="comments-by-user-content-${commentDictKey}"
+						        >
 						        	<div class="comments-by-user-content">
 						        		<div 
 						        			class="comments-by-user-content-message"
 						        			id="comments-by-user-content-message-${projectKey}-${commentDictKey}"
-						        		>${commentList[commentDictKey]["commentDictKey"][0]}</div>
+						        		>${content}</div>
 						        	</div>
 					     			<div class="comments-by-user-content-one-line">
 						        		<div 
-						        			class="comments-by-user-content-message-unanswered" 
-						        			id="comments-by-user-content-message-unanswered-${projectKey}-${commentDictKey}" onclick="markAnswered('${projectKey}', '${commentDictKey}')">${commentList[commentDictKey]["commentDictKey"][2]}</div>
+						        			class="comments-by-user-content-message-unanswered"
+						        			id="comments-by-user-content-message-unanswered-${projectKey}-${commentDictKey}" 
+						        			onclick="markAnswered('${projectKey}', '${commentDictKey}')"
+						        		>${commentList[commentDictKey]["commentDictKey"][2]}</div>
+						        		<div 
+						        			class="comments-by-user-content-message-highlight"
+						        			id="comments-by-user-content-message-highlight-${projectKey}-${commentDictKey}" 
+						        			onclick="highlight('${projectKey}', '${commentDictKey}')"
+						        		>${commentList[commentDictKey]["commentDictKey"][3]}</div>
 						        		<div 
 						        			class="comments-by-user-content-message-edit"
+						        			id="comments-by-user-content-message-edit-${projectKey}-${commentDictKey}"
 						        			onclick="editComment('${projectKey}', '${commentDictKey}')"
 						        		>edit</div>
-						        		<div class="comments-by-user-content-message-delete">delete</div>
+						        		<div 
+						        			class="comments-by-user-content-message-delete"
+						        			onclick="deleteComment('${projectKey}', '${commentDictKey}')"
+						        		>delete</div>
 						        	</div>
 						        	<p class="comments-by-user-writer">me</p>
 						        </div>
@@ -848,7 +897,7 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 		    		function() {
 		    			var $this = $(this); 
 		    			$this.data('unanswered', $this.text());
-		    			$this.text('answered');
+		    			$this.text('answer');
 		    		}, 
 		    		function() {
 		    			var $this = $(this);
