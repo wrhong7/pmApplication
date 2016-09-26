@@ -149,34 +149,36 @@ function addProject() {
 			 		</div>
 			 	</div>
 			</div>
-		 	<div class="row">
+		 	<div class="project-title-entry">
 		 		<div class="twelve columns">
 		 			<label>Project Title</label>
 					<textarea id="project-title" type="text" class="form-control" placeholder="i.e. Let's conquer the Mars by Christmas"></textarea>
 		 		</div>
 		 	</div>
-		 	<div class="row">
+		 	<div class="project-description-entry">
 		 		<div class="twelve columns">
 					<label>Description:</label>
 					<textarea id="project-description" type="text" class="form-control"></textarea>
 		 		</div>
 		 	</div>
-		 	<div class="twelve columns">
-				<label>Project Members</label>
-				<div class="email-entered-entering">
-					<div class="email-entered">
-					</div>
-					<div class="email-entering">
-						<input 
-							id="project-staff"
-							class="form-control"  
-							type="text"
-							onkeydown="if ((event.metaKey || event.ctrlKey) && event.keyCode == 13) { addStaffToProject() }"						
-							placeholder="Email or Name"
-						></input>
-					</div>
-	 			</div>
-		 	</div>		
+		 	<div class="project-member-entry">
+			 	<div class="twelve columns">
+					<label>Project Members</label>
+					<div class="email-entered-entering">
+						<div class="email-entered">
+						</div>
+						<div class="email-entering">
+							<input 
+								id="project-staff"
+								class="form-control"  
+								type="text"
+								onkeydown="if (event.keyCode == 188 || event.keyCode == 186 || event.keyCode == 13 || event.keyCode == 9) { addStaffToProject() }"						
+								placeholder="Email or Name"
+							></input>
+						</div>
+		 			</div>
+			 	</div>
+			 </div>
 		</form>
 
 		<div class="addStage-button-group">
@@ -210,8 +212,9 @@ function addProject() {
 					<input class="substage-topic" id="addStageInputFields-substage-input-${globalStageNumber}" placeholder="i.e. Building the foundation for lasting client relationship." type="text"></input>
 				</div>
 				<div id="addTargetInputFields-${globalStageNumber}" class="addTargetInputFields">
-					<label>Goals to Attain</label>
+					<label class="goals-to-attain-label">Goals to Attain</label>
 					<div class="substageGoalFirstInput" id="substageGoalFirstInput-${globalStageNumber}-${globalGoalNumber}">
+						
 						<input class="substage-goal" id="substageGoalFirstInput-value-${globalStageNumber}-${globalGoalNumber}" placeholder="i.e. Assistant PM will finish market research" type="text"></input>
 						<button class="allocateGoalButton button-primary" onclick="allocateGoal(${globalStageNumber}, ${globalGoalNumber})">Allocate</button>
 					</div>
@@ -278,7 +281,7 @@ function addTarget(stageNumber) {
 	addTargetDestination.append(
 		`
 		<div class="goal-Container">
-			<label>Goals to Attain</label>
+			<label class="goals-to-attain-label">Goals to Attain</label>
 			<div class="substageGoalFirstInput" id="substageGoalFirstInput-${stageNumber}-${localGoalNumber}">
 				<input class="substage-goal" id="substageGoalFirstInput-value-${stageNumber}-${localGoalNumber}" placeholder="i.e. Assistant PM will finish market research" type="text"></input>
 				<button class="allocateGoalButton button-primary" onclick="allocateGoal(${stageNumber}, ${localGoalNumber})">Allocate</button>
@@ -752,6 +755,11 @@ function editComment(projectKey, commentKey) {
 	);
 }
 
+function editProjectDetails(projectKey) {
+	console.log("editProjectDetails");
+	console.log(projectKey);
+}
+
 function loadProjects(projectsInFirebase, currentUserEmail) {
 	projectsInFirebase.on("value", function(projects) {
 		projectList = projects.val();
@@ -817,6 +825,7 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 						<p class="projectDueDate">Finish by ${projectList[projectKey].dueDate}</p>
 						<p class="projectStatus">${projectList[projectKey].status} Complete</p>
 					</div>
+					<button onclick="editProjectDetails('${projectKey}')">Edit Project Details</button>
 					<p class="projectMember">${projectList[projectKey].permission}</p>
 					<p class="projectDescription">${projectList[projectKey].description}</p>
 				</div>
