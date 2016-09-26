@@ -62,14 +62,20 @@ var commentKeyList;
 var commentInputValue;
 
 function hideProjectDetail() {
-	frontPageRight.hide();
-	addProjectDetails.hide();
 	frontPageLeft.css("width", "100%");
 	frontPageLeft.css("display", "inline");
-	addProjectButton.css("display", "inline");
-	// projectLists.empty();
-	frontPageDetail.empty();
-	frontPageRight.hide();
+	projectLists.hide();
+
+
+
+
+	// frontPageRight.hide();
+	// addProjectDetails.hide();
+
+	// addProjectButton.css("display", "inline");
+	// // projectLists.empty();
+	// frontPageDetail.empty();
+	// frontPageRight.hide();
 };
 function closeAddProject() {
 	frontPageRight.hide();
@@ -648,31 +654,66 @@ function expandInfo(projectKey) {
 	});
 }
 
-function enterComment(key) {
+function enterComment(projectKey) {
 	commentInputValue = $(".comments-cover-input-form").val();
 	commentInputValueArray = [commentInputValue, currentUserEmail, "Not Answered", "Not Highlighted"];
-	var commentFirebaseDB = new Firebase(`https://wonjunhong-test.firebaseio.com/projectDB/${key}/comments`);
+	var commentFirebaseDB = new Firebase(`https://wonjunhong-test.firebaseio.com/projectDB/${projectKey}/comments`);
 	var commentFirebaseDBInfo = commentFirebaseDB.push();
 	 	commentFirebaseDBInfo.set({commentDictKey: commentInputValueArray});
 	$(".comments-cover-input-form").val("");
 	
-
-	
 	setTimeout(function() {
-		commentList = projectList[key].comments;
+		commentList = projectList[projectKey].comments;
 		commentKeyList = Object.keys(commentList);
 		justEnteredCommentKey = commentKeyList.splice(-2)[0];
-		justEnteredComment = commentList[justEnteredCommentKey]["commentDictKey"][0];
-		console.log(justEnteredComment);
-		$(`#comments-cover-content-${key}`).append(
+		console.log(commentList[justEnteredCommentKey]["commentDictKey"][0])
+		$(`#comments-cover-content-${projectKey}`).append(
 			`
 	        <div class="comments-by-user">
-	        	<p class="comments-by-user-content">${justEnteredComment}</p>
-	        	<p class="comments-by-user-writer">written by me</p>
+	        	<p class="comments-by-user-content">${commentList[justEnteredCommentKey]["commentDictKey"][0]}</p>
 	        </div>
+ 			<div class="comments-by-user-content-one-line">
+        		<div class="comments-by-user-content-message-unanswered" onclick="markAnswered('${projectKey}', '${justEnteredCommentKey}')">${commentList[justEnteredCommentKey]["commentDictKey"][2]}</div>
+        		<div class="comments-by-user-content-message-edit">edit</div>
+        		<div class="comments-by-user-content-message-delete">delete</div>
+        	</div>
+        	<p class="comments-by-user-writer">me</p>	        
 			`
 		);	
-	}, 1000);
+	}, 500);
+}
+
+function markAnswered(projectKey, commentKey) {
+	currentUserDBInfoURL = "https://wonjunhong-test.firebaseio.com/projectDB/"+projectKey+"/comments/"+commentKey+'/commentDictKey';
+	var updateUserDBInfo = new Firebase(currentUserDBInfoURL);
+	updateUserDBInfo.update({2: "answered"});
+	setTimeout(function() {
+		$(`#comments-by-user-content-message-unanswered-${projectKey}-${commentKey}`).empty();
+		$(`#comments-by-user-content-message-unanswered-${projectKey}-${commentKey}`).append("answered");
+	}, 500);
+}
+
+function modifyComment(projectKey, commentKey) {
+	var enteredValue = $(`#comments-by-user-content-modifiedMessage-${projectKey}-${commentKey}`).val();
+	currentUserDBInfoURL = "https://wonjunhong-test.firebaseio.com/projectDB/"+projectKey+"/comments/"+commentKey+'/commentDictKey';
+	var updateUserDBInfo = new Firebase(currentUserDBInfoURL);
+	updateUserDBInfo.update({0: enteredValue});
+	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).empty();
+	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).append(enteredValue);	
+}
+
+function editComment(projectKey, commentKey) {
+	var originalValue = $(`#comments-by-user-content-message-${projectKey}-${commentKey}`).text();
+	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).empty();
+	$(`#comments-by-user-content-message-${projectKey}-${commentKey}`).append(
+		`
+		<textarea
+			id="comments-by-user-content-modifiedMessage-${projectKey}-${commentKey}"
+			onkeydown="if (event.keyCode == 13) { modifyComment('${projectKey}', '${commentKey}') }"
+			>${originalValue}
+		</textarea>
+		`
+	);
 }
 
 function loadProjects(projectsInFirebase, currentUserEmail) {
@@ -729,8 +770,7 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 			);
 
 			projectPreview.on('click', function(event) {
-
-				frontPageRight.css("display", "inline");
+				projectLists.css("display", "inline");
 				projectLists.empty();
 				projectLists.append(
 				`
@@ -763,11 +803,8 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 				</div>
 				`
 				);
-
 		    	commentList = projectList[projectKey].comments;
-
 		    	commentKeyList = Object.keys(commentList);
-
 		    	commentKeyList.forEach(function(commentDictKey) {
 		    		if (typeof(commentList[commentDictKey]) !== undefined && commentDictKey !== "commentExampleKey") {
 			    		if (`${commentList[commentDictKey]["commentDictKey"][1]}` === currentUserEmail) {
@@ -775,11 +812,19 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 						        `
 						        <div class="comments-by-user">
 						        	<div class="comments-by-user-content">
-						        		<div class="comments-by-user-content-message">${commentList[commentDictKey]["commentDictKey"][0]}</div>
+						        		<div 
+						        			class="comments-by-user-content-message"
+						        			id="comments-by-user-content-message-${projectKey}-${commentDictKey}"
+						        		>${commentList[commentDictKey]["commentDictKey"][0]}</div>
 						        	</div>
 					     			<div class="comments-by-user-content-one-line">
-						        		<div class="comments-by-user-content-message-unanswered" onclick="markAnswered('${commentDictKey}')">unanswered</div>
-						        		<div class="comments-by-user-content-message-edit">edit</div>
+						        		<div 
+						        			class="comments-by-user-content-message-unanswered" 
+						        			id="comments-by-user-content-message-unanswered-${projectKey}-${commentDictKey}" onclick="markAnswered('${projectKey}', '${commentDictKey}')">${commentList[commentDictKey]["commentDictKey"][2]}</div>
+						        		<div 
+						        			class="comments-by-user-content-message-edit"
+						        			onclick="editComment('${projectKey}', '${commentDictKey}')"
+						        		>edit</div>
 						        		<div class="comments-by-user-content-message-delete">delete</div>
 						        	</div>
 						        	<p class="comments-by-user-writer">me</p>
@@ -884,10 +929,6 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 	})
 	addChatTargetList();
 };
-
-function markAnswered(key) {
-	console.log(key);
-}
 
 function updateName() {
 	currentUserDBInfoURL = "https://wonjunhong-test.firebaseio.com/userinfoDB/"+userinfoInFirebaseCurrentUserKey;
