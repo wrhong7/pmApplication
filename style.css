@@ -1295,4 +1295,9 @@
     height: 100px;
     margin: 60px 0px 20px 0px;
   }
+  .edit-project-button-group {
+    width: 20%;
+    margin-left: 40%;
+    margin-right: 40%;
+  }
 }

@@ -756,8 +756,170 @@ function editComment(projectKey, commentKey) {
 }
 
 function editProjectDetails(projectKey) {
-	console.log("editProjectDetails");
-	console.log(projectKey);
+	$(".project-key-information").empty();
+	$(".projectDetailView").empty();
+	$(".projectDetailView").append(
+		`
+	 	<form id="project-form">
+	 		<div class="two-entry-fields">
+			 	<div class="row">
+			 		<div class="four columns">
+				 		<label>Project Manager</label>
+				 		<input id="project-creator" type="text" class="form-control" value=${projectList[projectKey]["creatorName"]}></input>
+			 		</div>
+			 		<div class="four columns">
+						<label>Due Date</label>
+						<input type="date" id="project-duedate" class="form-control" value=${projectList[projectKey]["dueDate"]}></input>
+			 		</div>
+			 		<div class="four columns">
+						<label>Current Completion Percentage</label>
+						<input id="project-progress" placeholder="i.e. 0% (must be in %)" type="text" class="form-control" value=${projectList[projectKey]["status"]}></input>
+			 		</div>
+			 	</div>
+			</div>
+		 	<div class="project-title-entry">
+		 		<div class="twelve columns">
+		 			<label>Project Title</label>
+					<textarea id="project-title" type="text" class="form-control">${projectList[projectKey]["projectTopic"]}</textarea>
+		 		</div>
+		 	</div>
+		 	<div class="project-description-entry">
+		 		<div class="twelve columns">
+					<label>Description:</label>
+					<textarea id="project-description" type="text" class="form-control">${projectList[projectKey]["description"]}</textarea>
+		 		</div>
+		 	</div>
+		 	<div class="project-member-entry">
+			 	<div class="twelve columns">
+					<label>Project Members</label>
+					<div class="email-entered-entering">
+						<div class="email-entered">
+						</div>
+						<div class="email-entering">
+							<input 
+								id="project-staff"
+								class="form-control"  
+								type="text"
+								onkeydown="if (event.keyCode == 188 || event.keyCode == 186 || event.keyCode == 13 || event.keyCode == 9) { addStaffToProject() }"						
+								placeholder="Email or Name"
+							></input>
+						</div>
+		 			</div>
+			 	</div>
+			 </div>
+		</form>
+
+		<div class="add-Stage-Input-Fields">
+		</div>
+		`
+	);
+
+	var permittedMembers = projectList[projectKey]["permission"];
+
+	permittedMembers.forEach(function(member) {
+
+		projectStaffListElement = $('#project-staff').val();
+		emailEnteredDiv = $(".email-entered");
+		emailEnteringDiv = $(".email-entering");
+		projectStaffListElementSpecialCharRemoved = member.replace(/[@&\/\\#,+()$~%.'":*?<>{}]/g,'-');
+
+		if (chatTargetBrowserDB[member] !== undefined) {
+			emailEnteredDiv.append(
+				`
+				<div id="${projectStaffListElementSpecialCharRemoved}" class="email-list-added">
+					<div class="email-list-element"> <img src="${chatTargetBrowserDB[member][1]}" height="15px" width="15px" /> ${chatTargetBrowserDB[projectStaffListElement][0]} (${projectStaffListElement})</div>
+					<div class="email-list-x-button" onclick="removingEmailListElement('${projectStaffListElementSpecialCharRemoved}')">x</div>
+				</div>
+				`
+			);			
+		} else {
+			emailEnteredDiv.append(
+				`
+				<div id="${projectStaffListElementSpecialCharRemoved}" class="email-list-added">
+					<div class="email-list-element">${member}</div>
+					<div class="email-list-x-button" onclick="removingEmailListElement('${projectStaffListElementSpecialCharRemoved}')">x</div>
+				</div>
+				`
+			);	
+		}
+	})
+
+
+	// var goalLength = (Object.keys(projectList[projectKey]["assignment"][0]).length - 2) / 5;
+	// var projectArray = [];
+	// for (var i = 0; i < goalLength; i++) {
+	// 	projectArray.push(i);
+	// }
+
+	var projectAssignmentLength = projectList[projectKey]["assignment"].length;
+	var projectAssignmentArray = [];
+	for (var i = 0; i < projectAssignmentLength; i++) {
+		projectAssignmentArray.push(i);
+		console.log(projectAssignmentArray);
+	}
+
+
+	projectAssignmentArray.forEach(function(stageNumber) {
+
+		// var assignmentLength = (Object.keys(projectList[projectKey]["assignment"][0]).length - 2) / 5;
+		// var assignmentArray = [];
+		// for (var i = 0; i < assignmentLength; i++) {
+		// 	projectArray.push(i);
+		// }
+
+		// var stageNumberToUniqueQuery = `addTargetInputFields-${stageNumber}`
+		var addTargetDestination = $(".add-Stage-Input-Fields");
+		addTargetDestination.append(
+			`
+			<div class="goal-Container">
+				<div class="addStageInputFields-substage" id="addStageInputFields-substage-${stageNumber}">
+					<label>Stage <b>${stageNumber + 1}</b> Subject</label>
+					<input class="substage-topic" id="addStageInputFields-substage-input-${stageNumber}" placeholder="i.e. Building the foundation for lasting client relationship." type="text"></input>
+				</div>
+				<div id="addTargetInputFields-${stageNumber}" class="addTargetInputFields">
+					<label class="goals-to-attain-label">Goals to Attain</label>
+					<div class="substageGoalFirstInput" id="substageGoalFirstInput-${stageNumber}-0">
+						
+						<input class="substage-goal" id="substageGoalFirstInput-value-${stageNumber}-0" placeholder="i.e. Assistant PM will finish market research" type="text"></input>
+						<button class="allocateGoalButton button-primary" onclick="allocateGoal(${stageNumber}, 0)">Allocate</button>
+					</div>
+					<div class="substageGoalSecondInput" id="substageGoalSecondInput-${stageNumber}-0"></div>
+					<div class="substageGoalThirdInput" id="substageGoalThirdInput-${stageNumber}-0">
+						<div class="substageGoalThirdInputProgressPercentage">
+							<label>Progress Percentage</label>
+							<input type="text" class="substageProgressPercentage" id="substageGoalThirdInput-value-${stageNumber}-0" value="0%" ></input>
+						</div>
+						<div class="substageGoalFourthInputDueDate">
+							<label>Due Date</label>
+							<input type="date" class="substageDueDate" id="substageGoalFourthInput-value-${stageNumber}-0"></input>
+						</div>
+						<div class="substageGoalFourthInputOverallStatus">	
+							<label>Overall Status</label>
+							<select class="substageOverallStatus" id="substageGoalFifthInput-value-${stageNumber}-0">
+								<option value="In Progress">In Progress</option>
+								<option value="Completed">Completed</option>
+								<option value="To be Determined">To be Determined</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="addTarget-button-group">
+					<button id="addTargetButton" class="button-primary" onclick="addTarget(${stageNumber})">Add Goals</button>
+				</div>
+			</div>
+			`
+		);
+
+		var goalLength = (Object.keys(projectList[projectKey]["assignment"][0]).length - 2) / 5;
+		var projectArray = [];
+		for (var i = 0; i < goalLength; i++) {
+			projectArray.push(i);
+		}
+	})
+
+
+
+
 }
 
 function loadProjects(projectsInFirebase, currentUserEmail) {
@@ -825,7 +987,9 @@ function loadProjects(projectsInFirebase, currentUserEmail) {
 						<p class="projectDueDate">Finish by ${projectList[projectKey].dueDate}</p>
 						<p class="projectStatus">${projectList[projectKey].status} Complete</p>
 					</div>
-					<button onclick="editProjectDetails('${projectKey}')">Edit Project Details</button>
+					<div class="edit-project-button-group">
+						<button class="edit-project-button" onclick="editProjectDetails('${projectKey}')">Edit Project</button>
+					</div>
 					<p class="projectMember">${projectList[projectKey].permission}</p>
 					<p class="projectDescription">${projectList[projectKey].description}</p>
 				</div>
