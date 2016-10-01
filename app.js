@@ -121,6 +121,7 @@ function addStaffToProject() {
 };
 
 function addProject() {
+	event.preventDefault();
 	projectStaffList = [];
 	addProjectButton.hide();
 	addProjectDetails.empty();
@@ -132,66 +133,53 @@ function addProject() {
 	addProjectDetails.css("display", "inline");
 	addProjectDetails.append(
 		`	
-	 	<form id="project-form">
-	 		<div class="two-entry-fields">
-			 	<div class="row">
-			 		<div class="four columns">
-				 		<label>Project Manager</label>
-				 		<input id="project-creator" type="text" class="form-control" value=${currentUserName}></input>
-			 		</div>
-			 		<div class="four columns">
-						<label>Due Date</label>
-						<input type="date" id="project-duedate" class="form-control"></input>
-			 		</div>
-			 		<div class="four columns">
-						<label>Current Completion Percentage</label>
-						<input id="project-progress" placeholder="i.e. 0% (must be in %)" type="text" class="form-control" value="0%"></input>
-			 		</div>
-			 	</div>
-			</div>
-		 	<div class="project-title-entry">
-		 		<div class="twelve columns">
-		 			<label>Project Title</label>
-					<textarea id="project-title" type="text" class="form-control" placeholder="i.e. Let's conquer the Mars by Christmas"></textarea>
+		<form class="addProject-Form">
+		 	<div class="row">
+		 		<div class="four columns">
+			 		<label>Project Manager</label>
+			 		<input id="project-creator" type="text" class="form-control" value=${currentUserName}></input>
+		 		</div>
+		 		<div class="four columns">
+					<label>Due Date</label>
+					<input type="date" id="project-duedate" class="form-control"></input>
+		 		</div>
+		 		<div class="four columns">
+					<label>Current Completion Percentage</label>
+					<input id="project-progress" placeholder="i.e. 0% (must be in %)" type="text" class="form-control" value="0%"></input>
 		 		</div>
 		 	</div>
-		 	<div class="project-description-entry">
-		 		<div class="twelve columns">
-					<label>Description:</label>
-					<textarea id="project-description" type="text" class="form-control"></textarea>
-		 		</div>
+	 		<div class="twelve columns">
+	 			<label>Project Title</label>
+				<textarea id="project-title" type="text" class="form-control" placeholder="i.e. Let's conquer the Mars by Christmas"></textarea>
+	 		</div>
+	 		<div class="twelve columns">
+				<label>Description:</label>
+				<textarea id="project-description" type="text" class="form-control"></textarea>
+	 		</div>
+		 	<div class="twelve columns">
+				<label>Project Members</label>
+				<div class="email-entered-entering">
+					<div class="email-entered">
+					</div>
+					<div class="email-entering">
+						<input 
+							id="project-staff"
+							class="form-control"  
+							type="text"
+							onkeydown="if (event.keyCode == 188 || event.keyCode == 186 || event.keyCode == 13 || event.keyCode == 9) { addStaffToProject() }"						
+							placeholder="Email or Name"
+						></input>
+					</div>
+	 			</div>
 		 	</div>
-		 	<div class="project-member-entry">
-			 	<div class="twelve columns">
-					<label>Project Members</label>
-					<div class="email-entered-entering">
-						<div class="email-entered">
-						</div>
-						<div class="email-entering">
-							<input 
-								id="project-staff"
-								class="form-control"  
-								type="text"
-								onkeydown="if (event.keyCode == 188 || event.keyCode == 186 || event.keyCode == 13 || event.keyCode == 9) { addStaffToProject() }"						
-								placeholder="Email or Name"
-							></input>
-						</div>
-		 			</div>
-			 	</div>
-			 </div>
-		</form>
-
-		<div class="addStage-button-group">
 			<button id="addStageButton" class="button-primary">Add Stage</button>
-		</div>
-
-		<div class="add-Stage-Input-Fields">
-		</div>
-
-		<div class="submit-button-group">
-			<button id="submitProjectButton" class="button-primary" onclick="submitProject()">Submit</button>
-			<button id="closeAddProjectButton" onclick="closeAddProject()">Close</button>
-		</div>
+			<div id="add-Stage-Input-Fields" twelve columns>
+			</div>
+			<div class="submit-button-group">
+				<button id="submitProjectButton" class="button-primary" onclick="submitProject()">Submit</button>
+				<button id="closeAddProjectButton" onclick="closeAddProject()">Close</button>
+			</div>
+		</form>
 		`
 	);
 
@@ -203,45 +191,43 @@ function addProject() {
 		globalGoalNumberArray.push(0);
 		projectAllocationArray.push([]);
 		globalGoalNumber = globalGoalNumberArray[globalStageNumber];
+		addStageInputFields = $("#add-Stage-Input-Fields");
 
-		addProjectDetails.append(
+		addStageInputFields.append(
 			`
-			<form id="stage-form">
+			<div id="addTargetInputFields-${globalStageNumber}" class="addTargetInputFields">
 				<div class="addStageInputFields-substage" id="addStageInputFields-substage-${globalStageNumber}">
-					<label>Stage <b>${globalStageNumber + 1}</b> Subject</label>
+					<label class="substage-topic-label">Stage <b>${globalStageNumber + 1}</b> Subject</label>
 					<input class="substage-topic" id="addStageInputFields-substage-input-${globalStageNumber}" placeholder="i.e. Building the foundation for lasting client relationship." type="text"></input>
 				</div>
-				<div id="addTargetInputFields-${globalStageNumber}" class="addTargetInputFields">
-					<label class="goals-to-attain-label">Goals to Attain</label>
-					<div class="substageGoalFirstInput" id="substageGoalFirstInput-${globalStageNumber}-${globalGoalNumber}">
-						
-						<input class="substage-goal" id="substageGoalFirstInput-value-${globalStageNumber}-${globalGoalNumber}" placeholder="i.e. Assistant PM will finish market research" type="text"></input>
-						<button class="allocateGoalButton button-primary" onclick="allocateGoal(${globalStageNumber}, ${globalGoalNumber})">Allocate</button>
+				<label class="goals-to-attain-label">Goals to Attain</label>
+				<div class="substageGoalFirstInput" id="substageGoalFirstInput-${globalStageNumber}-${globalGoalNumber}">
+					<input class="substage-goal" id="substageGoalFirstInput-value-${globalStageNumber}-${globalGoalNumber}" placeholder="i.e. Assistant PM will finish market research" type="text"></input>
+					<button class="allocateGoalButton button-primary" onclick="allocateGoal(${globalStageNumber}, ${globalGoalNumber})">Allocate</button>
+				</div>
+				<div class="substageGoalSecondInput" id="substageGoalSecondInput-${globalStageNumber}-${globalGoalNumber}"></div>
+				<div class="substageGoalThirdInput" id="substageGoalThirdInput-${globalStageNumber}-${globalGoalNumber}">
+					<div class="substageGoalThirdInputProgressPercentage">
+						<label>Progress Percentage</label>
+						<input type="text" class="substageProgressPercentage" id="substageGoalThirdInput-value-${globalStageNumber}-${globalGoalNumber}" value="0%" ></input>
 					</div>
-					<div class="substageGoalSecondInput" id="substageGoalSecondInput-${globalStageNumber}-${globalGoalNumber}"></div>
-					<div class="substageGoalThirdInput" id="substageGoalThirdInput-${globalStageNumber}-${globalGoalNumber}">
-						<div class="substageGoalThirdInputProgressPercentage">
-							<label>Progress Percentage</label>
-							<input type="text" class="substageProgressPercentage" id="substageGoalThirdInput-value-${globalStageNumber}-${globalGoalNumber}" value="0%" ></input>
-						</div>
-						<div class="substageGoalFourthInputDueDate">
-							<label>Due Date</label>
-							<input type="date" class="substageDueDate" id="substageGoalFourthInput-value-${globalStageNumber}-${globalGoalNumber}"></input>
-						</div>
-						<div class="substageGoalFourthInputOverallStatus">	
-							<label>Overall Status</label>
-							<select class="substageOverallStatus" id="substageGoalFifthInput-value-${globalStageNumber}-${globalGoalNumber}">
-								<option value="In Progress">In Progress</option>
-								<option value="Completed">Completed</option>
-								<option value="To be Determined">To be Determined</option>
-							</select>
-						</div>
+					<div class="substageGoalFourthInputDueDate">
+						<label>Due Date</label>
+						<input type="date" class="substageDueDate" id="substageGoalFourthInput-value-${globalStageNumber}-${globalGoalNumber}"></input>
+					</div>
+					<div class="substageGoalFourthInputOverallStatus">	
+						<label>Overall Status</label>
+						<select class="substageOverallStatus" id="substageGoalFifthInput-value-${globalStageNumber}-${globalGoalNumber}">
+							<option value="In Progress">In Progress</option>
+							<option value="Completed">Completed</option>
+							<option value="To be Determined">To be Determined</option>
+						</select>
 					</div>
 				</div>
-				<div class="addTarget-button-group">
-					<button id="addTargetButton" class="button-primary" onclick="addTarget(${globalStageNumber})">Add Goals</button>
-				</div>
-			</form>
+			</div>
+			<div class="addTarget-button-group">
+				<button id="addTargetButton" class="button-primary" onclick="addTarget(${globalStageNumber})">Add Goals</button>
+			</div>
 			`
 		);
 
@@ -313,6 +299,7 @@ function addTarget(stageNumber) {
 };
 
 function submitProject() {
+	event.preventDefault();
 	var projectCreatorEmailToDB = currentUserEmail;
 	var projectCreatorToDB = $('#project-creator').val();
 	var projectTitleToDB = $('#project-title').val();
@@ -415,8 +402,7 @@ function submitProject() {
 		});
 		
 		assignmentToDB.push(singleStageGoesToAssignmentToDBAbove);
-
-		console.log(assignmentToDB);
+		hideProjectDetail();
 	});
 
 	firebaseProjectDB.push({
@@ -915,6 +901,9 @@ function editProjectDetails(projectKey) {
 		for (var i = 0; i < goalLength; i++) {
 			projectArray.push(i);
 		}
+
+		console.log(projectArray);
+
 	})
 
 
